@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:background="@color/colorLightGray"
+        android:gravity="right"
+        android:paddingBottom="5dp"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/btn_createMemory"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:tint="@color/colorDarkGray"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            app:srcCompat="@drawable/img_new_memory"
+
+            android:text="@string/CreateMemory"
+
+       />
+
+
+    </RelativeLayout>
+
+
+
+
+    <View
+        android:background="@color/colorDarkGray"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
+
+
+    <ListView
+        android:id="@+id/listView_memoryListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></ListView>
+
+</LinearLayout>

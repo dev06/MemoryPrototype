@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/menu_takePhoto"
+        android:title="@string/menu_takePhoto" />
+    <item android:id="@+id/menu_uploadPhoto"
+        android:title="@string/menu_uploadPhoto"/>
+    <item android:id="@+id/menu_text"
+        android:title="@string/menu_text"/>
+    <item android:id="@+id/menu_emoticons"
+        android:title="@string/menu_emoticons"/>
+</menu>

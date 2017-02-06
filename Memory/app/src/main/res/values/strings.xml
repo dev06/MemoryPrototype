@@ -1,3 +1,12 @@
 <resources>
+    <string name="content_authority">vaystudios.com.memory</string>
+
     <string name="app_name">Memory</string>
+    <string name="CreateMemory">Create Memory</string>
+
+    <string name="menu_takePhoto">Take a photo</string>
+    <string name="menu_uploadPhoto">Upload photos</string>
+    <string name="menu_text">Text</string>
+    <string name="menu_emoticons">Emoticons</string>
+
 </resources>
