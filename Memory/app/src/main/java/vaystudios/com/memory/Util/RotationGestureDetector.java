@@ -1,6 +1,9 @@
 package vaystudios.com.memory.Util;
 
+import android.graphics.PointF;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 
 /**
  * Created by Devan on 2/6/2017.
@@ -9,9 +12,11 @@ import android.view.MotionEvent;
 public class RotationGestureDetector {
 
     private static final int INVALID_POINTER_ID = -1;
-    private float fX, fY, sX, sY;
-    private int ptrID1, ptrID2;
+    private PointF mFPoint = new PointF();
+    private PointF mSPoint = new PointF();
+    private int mPtrID1, mPtrID2;
     private float mAngle;
+    private View mView;
 
     private OnRotationGestureListener mListener;
 
@@ -19,65 +24,119 @@ public class RotationGestureDetector {
         return mAngle;
     }
 
-    public RotationGestureDetector(OnRotationGestureListener listener){
+    public RotationGestureDetector(OnRotationGestureListener listener, View v) {
         mListener = listener;
-        ptrID1 = INVALID_POINTER_ID;
-        ptrID2 = INVALID_POINTER_ID;
+        mView = v;
+        mPtrID1 = INVALID_POINTER_ID;
+        mPtrID2 = INVALID_POINTER_ID;
     }
-
+    int fingerCount = 0;
+    float pAngle;
     public boolean onTouchEvent(MotionEvent event){
+
+
         switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_OUTSIDE:
+
+                break;
             case MotionEvent.ACTION_DOWN:
-                ptrID1 = event.getPointerId(event.getActionIndex());
+
+                mPtrID1 = event.getPointerId(event.getActionIndex());
+                fingerCount++;
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
-                ptrID2 = event.getPointerId(event.getActionIndex());
-                sX = event.getX(event.findPointerIndex(ptrID1));
-                sY = event.getY(event.findPointerIndex(ptrID1));
-                fX = event.getX(event.findPointerIndex(ptrID2));
-                fY = event.getY(event.findPointerIndex(ptrID2));
+
+                mPtrID2 = event.getPointerId(event.getActionIndex());
+                fingerCount++;
+
+                    try
+                    {
+
+                        getRawPoint(event, mPtrID1, mSPoint);
+                        getRawPoint(event, mPtrID2, mFPoint);
+
+                    }catch(Exception e)
+                    {
+
+                    }
+
+
                 break;
             case MotionEvent.ACTION_MOVE:
-                if(ptrID1 != INVALID_POINTER_ID && ptrID2 != INVALID_POINTER_ID){
-                    float nfX, nfY, nsX, nsY;
-                    nsX = event.getX(event.findPointerIndex(ptrID1));
-                    nsY = event.getY(event.findPointerIndex(ptrID1));
-                    nfX = event.getX(event.findPointerIndex(ptrID2));
-                    nfY = event.getY(event.findPointerIndex(ptrID2));
+                if (mPtrID1 != INVALID_POINTER_ID && mPtrID2 != INVALID_POINTER_ID){
+                    PointF nfPoint = new PointF();
+                    PointF nsPoint = new PointF();
 
-                    mAngle = angleBetweenLines(fX, fY, sX, sY, nfX, nfY, nsX, nsY);
+                    try
+                    {
+                        getRawPoint(event, mPtrID1, nsPoint);
+                        getRawPoint(event, mPtrID2, nfPoint);
+
+                    }catch(Exception e)
+                    {
+
+                    }
+
+
+
+                    mAngle = angleBetweenLines(mFPoint, mSPoint, nfPoint, nsPoint) + pAngle;
+                    mAngle %= 360.0f;
 
                     if (mListener != null) {
-                        mListener.OnRotation(this);
+                        mListener.onRotation(this);
                     }
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                ptrID1 = INVALID_POINTER_ID;
+                mPtrID1 = INVALID_POINTER_ID;
+                pAngle = mAngle;
+                fingerCount--;
                 break;
             case MotionEvent.ACTION_POINTER_UP:
-                ptrID2 = INVALID_POINTER_ID;
+                mPtrID2 = INVALID_POINTER_ID;
+                pAngle = mAngle;
+                fingerCount--;
                 break;
             case MotionEvent.ACTION_CANCEL:
-                ptrID1 = INVALID_POINTER_ID;
-                ptrID2 = INVALID_POINTER_ID;
+                mPtrID1 = INVALID_POINTER_ID;
+                mPtrID2 = INVALID_POINTER_ID;
+                break;
+            default:
                 break;
         }
         return true;
     }
 
-    private float angleBetweenLines (float fX, float fY, float sX, float sY, float nfX, float nfY, float nsX, float nsY)
-    {
-        float angle1 = (float) Math.atan2( (fY - sY), (fX - sX) );
-        float angle2 = (float) Math.atan2( (nfY - nsY), (nfX - nsX) );
+    void getRawPoint(MotionEvent ev, int index, PointF point){
+        final int[] location = { 0, 0 };
+        mView.getLocationOnScreen(location);
 
-        float angle = ((float)Math.toDegrees(angle1 - angle2)) % 360;
-        if (angle < -180.f) angle += 360.0f;
-        if (angle > 180.f) angle -= 360.0f;
-        return angle;
+        float x = ev.getX(index);
+        float y = ev.getY(index);
+
+        double angle = Math.toDegrees(Math.atan2(y, x));
+        angle += mView.getRotation();
+
+        final float length = PointF.length(x, y);
+
+        x = (float) (length * Math.cos(Math.toRadians(angle))) + location[0];
+        y = (float) (length * Math.sin(Math.toRadians(angle))) + location[1];
+
+        point.set(x, y);
     }
 
-    public static interface OnRotationGestureListener {
-        public void OnRotation(RotationGestureDetector rotationDetector);
+    private float angleBetweenLines(PointF fPoint, PointF sPoint, PointF nFpoint, PointF nSpoint)
+    {
+        float angle1 = (float) Math.atan2((fPoint.y - sPoint.y), (fPoint.x - sPoint.x));
+        float angle2 = (float) Math.atan2((nFpoint.y - nSpoint.y), (nFpoint.x - nSpoint.x));
+
+        float angle = ((float) Math.toDegrees(angle1 - angle2)) % 360;
+        if (angle < -180.f) angle += 360.0f;
+        if (angle > 180.f) angle -= 360.0f;
+        return -angle;
+    }
+
+    public interface OnRotationGestureListener {
+        void onRotation(RotationGestureDetector rotationDetector);
     }
 }

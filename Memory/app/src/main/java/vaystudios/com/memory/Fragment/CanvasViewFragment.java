@@ -64,11 +64,16 @@ public class CanvasViewFragment extends Fragment
 
         //CustomBitmap b = new CustomBitmap(getActivity().getApplicationContext(), null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher) );
        // relativeLayout.addView(b);
+        for(int i =0;i < 10;i ++)
+        {
+            CustomBitmap b = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+            relativeLayout.addView(b);
+        }
 
-//        CustomBitmap b = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
 //        CustomBitmap b2 = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
 //
-//        relativeLayout.addView(b);
+
+
 //        relativeLayout.addView(b2);
 //
 //        MainActivity.bitmaps.add(b);
@@ -132,6 +137,7 @@ public class CanvasViewFragment extends Fragment
         {
 
             Bitmap source = BitmapFactory.decodeFile(path);
+
 
             Bitmap bitmap = scaleBitmapToScreenSize(RotateBitmap(source, 90));
             if(bitmap != null)

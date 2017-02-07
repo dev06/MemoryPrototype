@@ -3,6 +3,7 @@ package vaystudios.com.memory.View;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -25,7 +26,7 @@ import vaystudios.com.memory.Util.RotationGestureDetector;
  * Created by Devan on 2/5/2017.
  */
 
-public class CustomBitmap extends View implements RotationGestureDetector.OnRotationGestureListener
+public class CustomBitmap extends ImageView implements RotationGestureDetector.OnRotationGestureListener
 {
     Context c;
     Bitmap bitmap;
@@ -38,29 +39,38 @@ public class CustomBitmap extends View implements RotationGestureDetector.OnRota
     float px;
     float py;
     float sx, sy;
+
     private void Init()
     {
 
+        setAdjustViewBounds(true);
+        setScaleType(ScaleType.FIT_CENTER);
         scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
-        rotationGestureDetector = new RotationGestureDetector(this );
+        rotationGestureDetector = new RotationGestureDetector(this, this);
         final int screenWidth = getResources().getDisplayMetrics().widthPixels;
         final int screenHeight = getResources().getDisplayMetrics().heightPixels;
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent)
             {
+
                 scaleGestureDetector.onTouchEvent(motionEvent);
                 rotationGestureDetector.onTouchEvent(motionEvent) ;
                 RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)getLayoutParams();
+
+
                 params.width = (int)(bitmap.getWidth() * mScaleFactor);
                 params.height = (int)(bitmap.getHeight() * mScaleFactor);
                 setLayoutParams(params);
                 switch(motionEvent.getAction())
                 {
 
+
+
                     case MotionEvent.ACTION_MOVE:
                         float x_cord = motionEvent.getRawX() ;
                         float y_cord = motionEvent.getRawY();
+
 
 
                         float dx = x_cord - px;
@@ -93,8 +103,8 @@ public class CustomBitmap extends View implements RotationGestureDetector.OnRota
                         {
                             by = 0;
                         }
-                        setX(bx);
-                        setY(by);
+                        setX(vx);
+                        setY(vy);
 
                         break;
 
@@ -111,6 +121,7 @@ public class CustomBitmap extends View implements RotationGestureDetector.OnRota
                         params.width = (int)(bitmap.getWidth() * mScaleFactor);
                         params.height = (int)(bitmap.getHeight() * mScaleFactor);
                         setLayoutParams(params);
+
                         break;
 
                     default:
@@ -134,25 +145,32 @@ public class CustomBitmap extends View implements RotationGestureDetector.OnRota
         paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
         Init();
+        setImageBitmap(bitmap);
 
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+       super.onDraw(canvas);
         Matrix m = new Matrix();
-        m.postRotate(-mAngle, bitmap.getWidth() / 2, bitmap.getHeight()/ 2);
+        m.postRotate(mAngle, bitmap.getWidth() / 2, bitmap.getHeight()/ 2);
+        setRotation(mAngle);
 
+        setImageMatrix(m);
         canvas.save();
         canvas.scale(mScaleFactor, mScaleFactor);
-        canvas.drawBitmap(bitmap,  m, paint);
-
+      // canvas.drawBitmap(bitmap,  m, paint);
 
         canvas.restore();
     }
     private float mAngle;
+//    @Override
+//    public void OnRotation(RotationGestureDetector rotationDetector) {
+//
+//    }
+
     @Override
-    public void OnRotation(RotationGestureDetector rotationDetector) {
+    public void onRotation(RotationGestureDetector rotationDetector) {
         float angle = rotationDetector.getAngle();
         mAngle = angle;
         Log.d("Vay", "Angle - > " + angle);
@@ -163,7 +181,7 @@ public class CustomBitmap extends View implements RotationGestureDetector.OnRota
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor*= detector.getScaleFactor();
-            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor ,.9f));
+            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor ,5f));
             invalidate();
             return true;
         }
