@@ -65,13 +65,13 @@ public class CanvasViewFragment extends Fragment
         //CustomBitmap b = new CustomBitmap(getActivity().getApplicationContext(), null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher) );
        // relativeLayout.addView(b);
 
-        CustomBitmap b = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
-        CustomBitmap b2 = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
-
-        relativeLayout.addView(b);
-        relativeLayout.addView(b2);
-
-        MainActivity.bitmaps.add(b);
+//        CustomBitmap b = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+//        CustomBitmap b2 = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+//
+//        relativeLayout.addView(b);
+//        relativeLayout.addView(b2);
+//
+//        MainActivity.bitmaps.add(b);
 
 
         registerForContextMenu(canvasOptionButton);
