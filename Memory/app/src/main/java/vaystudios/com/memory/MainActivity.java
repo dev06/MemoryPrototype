@@ -1,5 +1,7 @@
 package vaystudios.com.memory;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.FragmentManager;
@@ -7,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -14,6 +17,10 @@ import vaystudios.com.memory.Fragment.MemoryListFragment;
 import vaystudios.com.memory.View.CustomBitmap;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static int REQUEST_IMAGE_CAPTURE = 0;
+    public static int REQUET_IMAGE_CROP = 1;
+    public static int REQUET_GALLERY_IMAGE_CROP = 2;
 
     public static ArrayList<CustomBitmap> bitmaps = new ArrayList<CustomBitmap>();
 
@@ -23,7 +30,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        if(checkCallingOrSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) !=
+                PackageManager.PERMISSION_GRANTED)
+        {
+            if(shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE))
+            {
+                Toast.makeText(this, "Permission Needed to Read the Storage", Toast.LENGTH_SHORT).show();
+            }
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
 
         MemoryListFragment memoryListFragment = new MemoryListFragment();
         getFragmentManager().beginTransaction().add(R.id.activity_main,memoryListFragment).commit();

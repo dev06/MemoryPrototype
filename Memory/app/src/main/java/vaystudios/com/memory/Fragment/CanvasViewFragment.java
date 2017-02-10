@@ -1,7 +1,10 @@
 package vaystudios.com.memory.Fragment;
 
+import android.Manifest;
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -54,29 +57,19 @@ public class CanvasViewFragment extends Fragment
         View view = inflater.inflate(R.layout.canvas_view_fragment_layout, container, false);
         ImageView canvasOptionButton = (ImageView)view.findViewById(R.id.btn_canvasOptions);
         relativeLayout = (RelativeLayout)view.findViewById(R.id.canvas_layout);
-//        View v = new CanvasView(getActivity().getApplicationContext(), null);
-//        View v2 = new CustomBitmap(getActivity().getApplicationContext(), null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher), 300,300);
-//        View v3 = new CustomBitmap(getActivity().getApplicationContext(), null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher), 100,100);
-////
-//        relativeLayout.addView(v2);
-//        relativeLayout.addView(v3);
 
-
-        //CustomBitmap b = new CustomBitmap(getActivity().getApplicationContext(), null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher) );
-       // relativeLayout.addView(b);
-        for(int i =0;i < 10;i ++)
+        for(int i =0;i < 3;i ++)
         {
             CustomBitmap b = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
             relativeLayout.addView(b);
         }
 
-//        CustomBitmap b2 = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
-//
-
-
-//        relativeLayout.addView(b2);
-//
-//        MainActivity.bitmaps.add(b);
+        canvasOptionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                view.showContextMenu();
+            }
+        });
 
 
         registerForContextMenu(canvasOptionButton);
@@ -94,6 +87,7 @@ public class CanvasViewFragment extends Fragment
 
             super.onCreateContextMenu(menu, v, menuInfo);
             MenuInflater inflater = getActivity().getMenuInflater();
+
             inflater.inflate(R.menu.art_menu, menu);
 
 
@@ -107,48 +101,137 @@ public class CanvasViewFragment extends Fragment
         {
             case R.id.menu_takePhoto:
             {
-                try {
-                    Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    File photo = createImageFile();
-
-                    if(photo != null)
-                    {
-                        Uri photoURI = FileProvider.getUriForFile(getActivity(), "vaystudios.com.memory", photo);
-                        i.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                        startActivityForResult(i, 0);
-                    }
-
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                startCameraForCapture();
                 break;
             }
+
+            case R.id.menu_uploadPhoto:
+            {
+                openGalleryForCrop();
+                break;
+            }
+
+
         }
 
         return super.onContextItemSelected(item);
     }
 
+    private void startCameraForCapture()
+    {
+        try {
+            Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            File photo = createImageFile();
+
+            if(photo != null)
+            {
+                Uri photoURI = FileProvider.getUriForFile(getActivity(), "vaystudios.com.memory", photo);
+                i.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(i, MainActivity.REQUEST_IMAGE_CAPTURE);
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void openGalleryForCrop()
+    {
+        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, MainActivity.REQUET_GALLERY_IMAGE_CROP);
+    }
+
+    private void selectImageFromGallery(Intent data)
+    {
+        Uri uri = data.getData();
+        String[] path = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContext().getContentResolver().query(uri, path, null, null, null);
+        cursor.moveToFirst();
+        String imagePath = cursor.getString(cursor.getColumnIndex(path[0]));
+
+
+
+        cropImage(Uri.fromFile( new File(imagePath)));
+
+    }
+
+
+
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 0 && resultCode == RESULT_OK)
+        if(requestCode == MainActivity.REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK)
+        {
+            cropImage(Uri.fromFile(new File(path)));
+        }
+
+        if(requestCode == MainActivity.REQUET_IMAGE_CROP && resultCode == RESULT_OK)
         {
 
-            Bitmap source = BitmapFactory.decodeFile(path);
-
-
-            Bitmap bitmap = scaleBitmapToScreenSize(RotateBitmap(source, 90));
-            if(bitmap != null)
+            if(getActivity().checkCallingOrSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) !=
+                    PackageManager.PERMISSION_GRANTED)
             {
-                relativeLayout.addView(new CustomBitmap(getActivity().getApplicationContext(), null, bitmap));
+                if(getActivity().shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE))
+                {
+                    Toast.makeText(getActivity().getApplicationContext(), "Permission Needed to Read the Storage", Toast.LENGTH_SHORT).show();
+                }
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MainActivity.REQUET_IMAGE_CROP);
             }
-            Log.d("Vay", BitmapFactory.decodeFile(path) + "");
+
+
+            if(getActivity().checkCallingOrSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED)
+            {
+                Uri newUri = data.getData();
+
+                try {
+                    Bitmap b = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), newUri);
+
+                    Bitmap bitmap = scaleBitmapToScreenSize(RotateBitmap(b, 90));
+
+                    if(bitmap != null)
+                    {
+                        relativeLayout.addView(new CustomBitmap(getActivity(), null, bitmap));
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
 
         }
 
+
+
+        if(requestCode == MainActivity.REQUET_GALLERY_IMAGE_CROP && resultCode == RESULT_OK)
+        {
+            selectImageFromGallery(data);
+        }
+
     }
+
+    private void cropImage( Uri uri)
+    {
+        Intent i = new Intent("com.android.camera.action.CROP");
+        i.setDataAndType(uri, "image/*");
+        i.putExtra("crop", "true");
+        i.putExtra("aspectX", 1);
+        i.putExtra("aspectY", 1);
+        i.putExtra("scale", true);
+        i.putExtra("outputX", 500);
+        i.putExtra("outputY", 500);
+
+
+
+        startActivityForResult(i, MainActivity.REQUET_IMAGE_CROP);
+    }
+
+
 
 
 
@@ -170,7 +253,7 @@ public class CanvasViewFragment extends Fragment
             float ratio = (float)displayMetrics.widthPixels / (float)displayMetrics.heightPixels;
             Log.d("Vay", ratio + "");
 
-            result = Bitmap.createScaledBitmap(source, (int)(source.getWidth() * ratio), (int)(source.getHeight() * ratio), true);
+            result = Bitmap.createScaledBitmap(source, (int)(source.getWidth()), (int)(source.getHeight() ), true);
 
 
 

@@ -5,7 +5,7 @@
     <string name="CreateMemory">Create Memory</string>
 
     <string name="menu_takePhoto">Take a photo</string>
-    <string name="menu_uploadPhoto">Upload photos</string>
+    <string name="menu_uploadPhoto">Add photos from Gallery</string>
     <string name="menu_text">Text</string>
     <string name="menu_emoticons">Emoticons</string>
 
