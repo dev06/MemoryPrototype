@@ -4,4 +4,5 @@
 
     <item android:id="@+id/artOptionMenu_delete"
         android:title="Delete"/>
+
 </menu>

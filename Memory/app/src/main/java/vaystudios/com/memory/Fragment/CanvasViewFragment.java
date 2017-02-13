@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -34,6 +35,7 @@ import vaystudios.com.memory.MainActivity;
 import vaystudios.com.memory.R;
 import vaystudios.com.memory.View.CanvasView;
 import vaystudios.com.memory.View.CustomBitmap;
+import vaystudios.com.memory.View.CustomText;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -44,7 +46,8 @@ import static android.app.Activity.RESULT_OK;
 public class CanvasViewFragment extends Fragment
 {
     RelativeLayout relativeLayout;
-
+    View view;
+    String path;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,14 +58,18 @@ public class CanvasViewFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.canvas_view_fragment_layout, container, false);
-        ImageView canvasOptionButton = (ImageView)view.findViewById(R.id.btn_canvasOptions);
+        ImageView canvasOptionButton = (ImageView)view.findViewById(R.id.btn_canvasOption);
         relativeLayout = (RelativeLayout)view.findViewById(R.id.canvas_layout);
-
+        this.view = view;
         for(int i =0;i < 3;i ++)
         {
-            CustomBitmap b = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+            CustomBitmap b = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher), view);
             relativeLayout.addView(b);
         }
+
+
+        CustomText customText = new CustomText(getContext(), null);
+        relativeLayout.addView(customText);
 
         canvasOptionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,10 +78,7 @@ public class CanvasViewFragment extends Fragment
             }
         });
 
-
         registerForContextMenu(canvasOptionButton);
-
-
 
         return view;
     }
@@ -83,14 +87,10 @@ public class CanvasViewFragment extends Fragment
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-
-
             super.onCreateContextMenu(menu, v, menuInfo);
             MenuInflater inflater = getActivity().getMenuInflater();
 
             inflater.inflate(R.menu.art_menu, menu);
-
-
     }
 
 
@@ -111,6 +111,12 @@ public class CanvasViewFragment extends Fragment
                 break;
             }
 
+            case R.id.menu_text:
+            {
+                CustomText customText = new CustomText(getContext(), null);
+                relativeLayout.addView(customText);
+                break;
+            }
 
         }
 
@@ -157,11 +163,6 @@ public class CanvasViewFragment extends Fragment
 
     }
 
-
-
-
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -196,7 +197,7 @@ public class CanvasViewFragment extends Fragment
 
                     if(bitmap != null)
                     {
-                        relativeLayout.addView(new CustomBitmap(getActivity(), null, bitmap));
+                        relativeLayout.addView(new CustomBitmap(getActivity(), null, bitmap,  view ));
                     }
 
                 } catch (IOException e) {
@@ -231,10 +232,6 @@ public class CanvasViewFragment extends Fragment
         startActivityForResult(i, MainActivity.REQUET_IMAGE_CROP);
     }
 
-
-
-
-
     private Bitmap RotateBitmap(Bitmap source, float angle)
     {
         Matrix m = new Matrix();
@@ -265,10 +262,6 @@ public class CanvasViewFragment extends Fragment
         return result;
     }
 
-
-
-
-    String path;
     private File createImageFile() throws IOException
     {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());

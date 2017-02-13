@@ -17,13 +17,27 @@
         android:background="@drawable/oval"
         android:elevation="5dp"
         android:padding="10dp"
-        android:id="@+id/btn_canvasOptions"
+        android:id="@+id/btn_canvasOption"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="15dp"
         android:layout_marginRight="15dp"
-        android:src ="@drawable/img_new_memory"
+        android:src="@drawable/img_new_memory"
         android:layout_alignParentEnd="true" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/oval"
+        android:elevation="5dp"
+        android:padding="10dp"
+        android:backgroundTint="@color/colorLightGray"
+        android:id="@+id/btn_canvasDelete"
+        android:layout_marginRight="15dp"
+        android:src ="@mipmap/ic_launcher"
+        android:layout_alignTop="@+id/btn_canvasOption"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="11dp" />
 
 
 </RelativeLayout>
