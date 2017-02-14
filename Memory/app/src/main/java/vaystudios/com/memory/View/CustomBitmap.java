@@ -36,7 +36,7 @@ public class CustomBitmap extends ImageView
 {
 
     private static CustomBitmap instance;
-
+    private boolean interact;
     private View view;
     private View parentView;
     private Activity c;
@@ -54,16 +54,7 @@ public class CustomBitmap extends ImageView
     float py;
     float sx, sy;
     float tx, ty;
-//    float mPosX;
-//    float mPosY;
-//    float mLastTouchX;
-//    float mLastTouchY;
-//    float mLastGestureX;
-//    float mLastGestureY;
-//    private static final int INVALID_POINTER_ID = -1;
-//    private int mActivePointerId = INVALID_POINTER_ID;
 
-    ImageView deleteButton;
 
     private void Init()
     {
@@ -72,26 +63,28 @@ public class CustomBitmap extends ImageView
         gestureDetector = new GestureDetector(getContext(), new GestureListener());
         scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
         rotationGestureDetector = new RotationGestureDetector(new RotationGestureListener(), this);
+        setElevation(10);
 
 
         setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
             @Override
             public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
 
-
-                setVisibility(View.GONE);
-
-
+                if(interact)
+                {
+                    setVisibility(View.GONE);
+                }
             }
         });
 
    }
 
-    public CustomBitmap(Activity context, AttributeSet attrs, Bitmap bitmap, View parentView) {
+    public CustomBitmap(Activity context, AttributeSet attrs, Bitmap bitmap, View parentView, boolean interact) {
         super(context, attrs);
         this.c = context;
         this.parentView = parentView;
         this.bitmap = bitmap;
+        this.interact = interact;
         paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
 
@@ -100,6 +93,12 @@ public class CustomBitmap extends ImageView
         Init();
 
     }
+
+    public void setInteract(boolean interact)
+    {
+        this.interact = interact;
+    }
+
 
 
     public Drawable easyRound(Bitmap source, int pixels)
@@ -116,13 +115,14 @@ public class CustomBitmap extends ImageView
 
         super.onDraw(canvas);
 
-        setRotation(mAngle);
-
-        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)getLayoutParams();
-        layoutParams.width = (int)(bitmap.getWidth() * mScaleFactor);
-        layoutParams.height = (int)(bitmap.getHeight() * mScaleFactor);
-
-        setLayoutParams(layoutParams);
+        if(interact)
+        {
+            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)getLayoutParams();
+            layoutParams.width = (int)(bitmap.getWidth() * mScaleFactor);
+            layoutParams.height = (int)(bitmap.getHeight() * mScaleFactor);
+            setClickable(instance == this);
+            setLayoutParams(layoutParams);
+        }
     }
 
 
@@ -131,11 +131,15 @@ public class CustomBitmap extends ImageView
     {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            mScaleFactor*= detector.getScaleFactor();
-            mScaleFactor = Math.max(0.5f, Math.min(mScaleFactor ,5.0f));
 
-            invalidate();
-            return true;
+            if(interact)
+            {
+                mScaleFactor*= detector.getScaleFactor();
+                mScaleFactor = Math.max(0.5f, Math.min(mScaleFactor ,5.0f));
+                invalidate();
+            }
+
+            return interact;
         }
     }
 
@@ -145,8 +149,12 @@ public class CustomBitmap extends ImageView
 
         @Override
         public void onRotation(RotationGestureDetector rotationDetector) {
-            float angle = rotationDetector.getAngle();
-            mAngle = angle;
+            if(interact)
+            {
+                float angle = rotationDetector.getAngle();
+                mAngle = angle;
+                setRotation(mAngle);
+            }
         }
     }
 
@@ -161,76 +169,81 @@ public class CustomBitmap extends ImageView
             scaleGestureDetector.onTouchEvent(motionEvent);
             rotationGestureDetector.onTouchEvent(motionEvent) ;
 
-            switch(motionEvent.getAction())
+
+            if(interact)
             {
-                case MotionEvent.ACTION_DOWN:
+                switch(motionEvent.getAction())
                 {
-                    move = true;
-                    sx = getX();
-                    sy = getY();
-                    px = motionEvent.getRawX();
-                    py = motionEvent.getRawY();
-                    if(instance == null)
+                    case MotionEvent.ACTION_DOWN:
                     {
-                        instance = (CustomBitmap)view;
+                        move = true;
+                        sx = getX();
+                        sy = getY();
+                        px = motionEvent.getRawX();
+                        py = motionEvent.getRawY();
+                        if(instance == null)
+                        {
+                            instance = (CustomBitmap)view;
+                        }
+
+                        break;
                     }
 
-                    break;
-                }
-
-                case MotionEvent.ACTION_MOVE:
-                {
-                    if(move && instance == view)
+                    case MotionEvent.ACTION_MOVE:
                     {
-                        float x_cord = motionEvent.getRawX() ;
-                        float y_cord = motionEvent.getRawY();
+                        if(move && instance == view)
+                        {
+                            float x_cord = motionEvent.getRawX() ;
+                            float y_cord = motionEvent.getRawY();
 
-                        float dx = x_cord - px;
-                        float dy = y_cord - py;
+                            float dx = x_cord - px;
+                            float dy = y_cord - py;
 
-                        float vx = sx + dx;
-                        float vy = sy + dy;
-                        tx = vx;
-                        ty = vy;
+                            float vx = sx + dx;
+                            float vy = sy + dy;
+                            tx = vx;
+                            ty = vy;
 
-                        setX(tx);
-                        setY(ty);
-                        instance = (CustomBitmap)view;
+                            setX(tx);
+                            setY(ty);
+                            instance = (CustomBitmap)view;
+
+                        }
+
+                        break;
 
                     }
 
-                    break;
-
-                }
-
-                case MotionEvent.ACTION_POINTER_DOWN:
-                {
-                    move = true;
-                    sx = getX();
-                    sy = getY();
-                    px = motionEvent.getRawX();
-                    py = motionEvent.getRawY();
-
-                    break;
-                }
-
-                case MotionEvent.ACTION_POINTER_UP:
-                {
-                    move = false;
-
-                    break;
-                }
-                case MotionEvent.ACTION_UP:
-                {
-                    move = false;
-                    if(instance != null)
+                    case MotionEvent.ACTION_POINTER_DOWN:
                     {
-                        instance = null;
+                        move = true;
+                        sx = getX();
+                        sy = getY();
+                        px = motionEvent.getRawX();
+                        py = motionEvent.getRawY();
 
+                        break;
                     }
-                    break;
+
+                    case MotionEvent.ACTION_POINTER_UP:
+                    {
+                        move = false;
+
+                        break;
+                    }
+                    case MotionEvent.ACTION_UP:
+                    {
+                        move = false;
+                        if(instance != null && instance == view)
+                        {
+                            instance = null;
+
+                        }
+                        break;
+                    }
                 }
             }
+
             return true;
         }
     }

@@ -38,7 +38,7 @@ public class CustomText extends EditText {
     private GestureDetector gestureDetector;
     private RotationGestureDetector rotationGestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
-
+    private boolean interact;
 
     private float mScaleFactor = 1f;
     private float mAngle;
@@ -57,8 +57,9 @@ public class CustomText extends EditText {
     Display display;
     DisplayMetrics metrics = new DisplayMetrics();
 
-    public CustomText(Context context, AttributeSet attrs) {
+    public CustomText(Context context, AttributeSet attrs, boolean interact) {
         super(context, attrs);
+        this.interact = interact;
 
         Typeface face= Typeface.createFromAsset(context.getAssets(), "arial.ttf");
         this.setTypeface(face);
@@ -108,9 +109,16 @@ public class CustomText extends EditText {
     }
 
 
+    public void setInteract(boolean interact)
+    {
+        this.interact = interact;
+    }
+
+
     @Override
     public boolean onKeyPreIme(int keyCode, KeyEvent event) {
-        if(keyboardActive)
+
+        if(keyboardActive && interact)
         {
             if(keyCode == KeyEvent.KEYCODE_BACK)
             {
@@ -128,7 +136,6 @@ public class CustomText extends EditText {
 
         if(keyboardActive)
             setX(metrics.widthPixels / 2 - getWidth() / 2);
-       // setBackgroundColor(Color.GRAY);
 
         setBackground(null);
         super.onDraw(canvas);
@@ -146,18 +153,22 @@ public class CustomText extends EditText {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
 
-            mScaleFactor*= detector.getScaleFactor();
-            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor ,3.0f));
-            newScale += -(previousScale - mScaleFactor) * 100.0f;
-            previousScale = mScaleFactor;
-
-            if(!keyboardActive)
+            if(interact)
             {
-                setScaleX(newScale / 100.0f);
-                setScaleY(newScale / 100.0f);
+                mScaleFactor*= detector.getScaleFactor();
+                mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor ,3.0f));
+                newScale += -(previousScale - mScaleFactor) * 100.0f;
+                previousScale = mScaleFactor;
+
+                if(!keyboardActive)
+                {
+                    setScaleX(newScale / 100.0f);
+                    setScaleY(newScale / 100.0f);
+                }
+
+                invalidate();
             }
 
-            invalidate();
 
             return true;
         }
@@ -171,7 +182,7 @@ public class CustomText extends EditText {
         @Override
         public void onRotation(RotationGestureDetector rotationDetector) {
             float angle = rotationDetector.getAngle();
-            if(!keyboardActive)
+            if(!keyboardActive && interact)
             {
                 mAngle = angle;
                 setRotation(mAngle);
@@ -181,25 +192,28 @@ public class CustomText extends EditText {
 
     private void showKeyboard()
     {
-
-        requestFocus();
-        if(isFocused())
+        if(interact)
         {
-            saveX = getX();
-            saveY = getY();
-            saveRot = mAngle;
-            saveScaleX = getScaleX();
-            saveScaleY = getScaleY();
-            setRotation(0);
-            setScaleX(1.0f);
-            setScaleY(1.0f);
+            requestFocus();
+            if(isFocused())
+            {
+                saveX = getX();
+                saveY = getY();
+                saveRot = mAngle;
+                saveScaleX = getScaleX();
+                saveScaleY = getScaleY();
+                setRotation(0);
+                setScaleX(1.0f);
+                setScaleY(1.0f);
 
-            setY(500);
-            setCursorVisible(true);
-            InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
-            setSelection(getText().length());
-            keyboardActive = true;
+                setY(500);
+                setCursorVisible(true);
+                InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
+                setSelection(getText().length());
+                keyboardActive = true;
+            }
+
         }
 
 
@@ -208,17 +222,21 @@ public class CustomText extends EditText {
 
     private void hideKeyboard()
     {
-        InputMethodManager inputMethodManager = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        this.clearFocus();
-        setCursorVisible(false);
-        keyboardActive = false;
-        setRotation(saveRot);
-        setSelection(0);
-        setX(saveX);
-        setY(saveY);
-        setScaleX(saveScaleX);
-        setScaleY(saveScaleY);
+        if(interact)
+        {
+            InputMethodManager inputMethodManager = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            this.clearFocus();
+            setCursorVisible(false);
+            keyboardActive = false;
+            setRotation(saveRot);
+            setSelection(0);
+            setX(saveX);
+            setY(saveY);
+            setScaleX(saveScaleX);
+            setScaleY(saveScaleY);
+        }
+
     }
 
 
@@ -235,67 +253,70 @@ public class CustomText extends EditText {
             scaleGestureDetector.onTouchEvent(motionEvent);
             rotationGestureDetector.onTouchEvent(motionEvent) ;
 
-
-            switch(motionEvent.getAction())
+            if(interact)
             {
-                case MotionEvent.ACTION_DOWN:
+                switch(motionEvent.getAction())
                 {
-
-
-                    move = true;
-                    sx = getX();
-                    sy = getY();
-                    px = motionEvent.getRawX();
-                    py = motionEvent.getRawY();
-                    break;
-                }
-
-                case MotionEvent.ACTION_MOVE:
-                {
-                    if(move)
+                    case MotionEvent.ACTION_DOWN:
                     {
-                        float x_cord = motionEvent.getRawX() ;
-                        float y_cord = motionEvent.getRawY();
 
-                        float dx = x_cord - px;
-                        float dy = y_cord - py;
 
-                        float vx = sx + dx;
-                        float vy = sy + dy;
-                        tx = vx;
-                        ty = vy;
-                        if(!keyboardActive)
-                            setX(tx);
-                        setY(ty);
+                        move = true;
+                        sx = getX();
+                        sy = getY();
+                        px = motionEvent.getRawX();
+                        py = motionEvent.getRawY();
+                        break;
                     }
 
-                    break;
+                    case MotionEvent.ACTION_MOVE:
+                    {
+                        if(move)
+                        {
+                            float x_cord = motionEvent.getRawX() ;
+                            float y_cord = motionEvent.getRawY();
 
-                }
+                            float dx = x_cord - px;
+                            float dy = y_cord - py;
 
-                case MotionEvent.ACTION_POINTER_DOWN:
-                {
-                    move = true;
-                    sx = getX();
-                    sy = getY();
-                    px = motionEvent.getRawX();
-                    py = motionEvent.getRawY();
-                    break;
-                }
+                            float vx = sx + dx;
+                            float vy = sy + dy;
+                            tx = vx;
+                            ty = vy;
+                            if(!keyboardActive)
+                                setX(tx);
+                            setY(ty);
+                        }
 
-                case MotionEvent.ACTION_POINTER_UP:
-                {
-                    move = false;
-                    break;
-                }
-                case MotionEvent.ACTION_UP:
-                {
-                  //  setScaleX(1.51f);
-                  //  setScaleX(1.51f);
-                    move = false;
-                    break;
+                        break;
+
+                    }
+
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                    {
+                        move = true;
+                        sx = getX();
+                        sy = getY();
+                        px = motionEvent.getRawX();
+                        py = motionEvent.getRawY();
+                        break;
+                    }
+
+                    case MotionEvent.ACTION_POINTER_UP:
+                    {
+                        move = false;
+                        break;
+                    }
+                    case MotionEvent.ACTION_UP:
+                    {
+                        //  setScaleX(1.51f);
+                        //  setScaleX(1.51f);
+                        move = false;
+                        break;
+                    }
                 }
             }
+
             return true;
         }
     }

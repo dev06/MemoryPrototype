@@ -38,11 +38,13 @@ public class CanvasViewFragment extends Fragment {
             relativeLayout.removeAllViews();
             for(int i = 0;i < memoryObject.texts.size(); i++)
             {
+                memoryObject.texts.get(i).setInteract(false);
                 relativeLayout.addView(memoryObject.texts.get(i));
             }
 
             for(int i = 0;i < memoryObject.bitmaps.size(); i++)
             {
+                memoryObject.bitmaps.get(i).setInteract(false);
                 relativeLayout.addView(memoryObject.bitmaps.get(i));
             }
         }

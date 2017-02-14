@@ -2,6 +2,7 @@ package vaystudios.com.memory.Fragment;
 
 import android.Manifest;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -12,6 +13,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -20,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -64,16 +68,54 @@ public class CanvasEditFragment extends Fragment
         ImageView canvasOptionButton = (ImageView)view.findViewById(R.id.btn_canvasOption);
         ImageView canvasCompleteButton = (ImageView)view.findViewById(R.id.btn_canvasComplete);
 
+        // user finishes designing the canvas and wants to finish it up.
         canvasCompleteButton.setOnClickListener(new View.OnClickListener() {
+            MemoryObject memoryObject = new MemoryObject("New Memory!");
+
             @Override
             public void onClick(View v) {
-                MemoryListFragment memoryListFragment = new MemoryListFragment();
-                getFragmentManager().beginTransaction().replace(R.id.activity_main, memoryListFragment).commit();
-                MemoryObject memoryObject = new MemoryObject("New Memory!");
-                memoryObject.texts = customTexts;
-                memoryObject.bitmaps = customBitmaps;
-                MainActivity.memoryObjects.add(0, memoryObject);
-                relativeLayout.removeAllViews();
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Memory Name");
+                builder.setIcon(R.mipmap.ic_launcher);
+                final EditText editText = new EditText(getContext());
+
+                editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                editText.requestFocus();
+                builder.setView(editText);
+
+                builder.setPositiveButton("Finish", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if(editText.getText().length() > 0)
+                        {
+                            memoryObject.title = editText.getText().toString();
+                            memoryObject.texts = customTexts;
+                            memoryObject.bitmaps = customBitmaps;
+                            MainActivity.memoryObjects.add(0, memoryObject);
+                            relativeLayout.removeAllViews();
+                            MemoryListFragment memoryListFragment = new MemoryListFragment();
+                            getFragmentManager().beginTransaction().replace(R.id.activity_main, memoryListFragment).commit();
+                        }else
+                        {
+                            Toast.makeText(getContext(), "Enter a Memory Title!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+
+
+
+                builder.show();
+
+
+
             }
         });
 
@@ -124,7 +166,7 @@ public class CanvasEditFragment extends Fragment
 
             case R.id.menu_text:
             {
-                CustomText customText = new CustomText(getContext(), null);
+                CustomText customText = new CustomText(getContext(), null, true);
                 relativeLayout.addView(customText);
                 customTexts.add(customText);
                 break;
@@ -209,7 +251,7 @@ public class CanvasEditFragment extends Fragment
 
                     if(bitmap != null)
                     {
-                        CustomBitmap customBitmap = new CustomBitmap(getActivity(), null, bitmap, view);
+                        CustomBitmap customBitmap = new CustomBitmap(getActivity(), null, bitmap, view, true);
                         customBitmaps.add(customBitmap);
                         relativeLayout.addView(customBitmap);
                     }
