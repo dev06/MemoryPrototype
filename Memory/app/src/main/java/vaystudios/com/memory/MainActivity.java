@@ -14,6 +14,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import vaystudios.com.memory.Fragment.MemoryListFragment;
+import vaystudios.com.memory.Object.MemoryObject;
 import vaystudios.com.memory.View.CustomBitmap;
 
 public class MainActivity extends AppCompatActivity {
@@ -22,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     public static int REQUET_IMAGE_CROP = 1;
     public static int REQUET_GALLERY_IMAGE_CROP = 2;
 
-    public static ArrayList<CustomBitmap> bitmaps = new ArrayList<CustomBitmap>();
+    public static ArrayList<MemoryObject> memoryObjects = new ArrayList<MemoryObject>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)

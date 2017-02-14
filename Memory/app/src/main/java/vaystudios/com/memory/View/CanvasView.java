@@ -35,14 +35,6 @@ public class CanvasView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        for(int i =0 ;i < MainActivity.bitmaps.size(); i++)
-        {
-            Matrix m = new Matrix();
-            m.setScale(1,1);
-            CustomBitmap b = MainActivity.bitmaps.get(i);
-
-          //  canvas.drawBitmap(b.bitmap, b.x, b.y, p);
-        }
     }
 
 

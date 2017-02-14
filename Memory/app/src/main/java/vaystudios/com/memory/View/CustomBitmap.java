@@ -34,11 +34,14 @@ import vaystudios.com.memory.Util.RotationGestureDetector;
 
 public class CustomBitmap extends ImageView
 {
-    View view;
-    View parentView;
-    Activity c;
-    Bitmap bitmap;
-    Paint paint;
+
+    private static CustomBitmap instance;
+
+    private View view;
+    private View parentView;
+    private Activity c;
+    private Bitmap bitmap;
+    private Paint paint;
 
     private GestureDetector gestureDetector;
     private RotationGestureDetector rotationGestureDetector;
@@ -69,7 +72,6 @@ public class CustomBitmap extends ImageView
         gestureDetector = new GestureDetector(getContext(), new GestureListener());
         scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
         rotationGestureDetector = new RotationGestureDetector(new RotationGestureListener(), this);
-        deleteButton = (ImageView)parentView.findViewById(R.id.btn_canvasDelete);
 
 
         setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
@@ -121,85 +123,10 @@ public class CustomBitmap extends ImageView
         layoutParams.height = (int)(bitmap.getHeight() * mScaleFactor);
 
         setLayoutParams(layoutParams);
-
-//
-//        setScaleY(mScaleFactor);
-//        setScaleX(mScaleFactor);
     }
 
-//    @Override
-//    public void onClick(View view) {
-//
-//        //view.showContextMenu();
-//
-//    }
 
     boolean move;
-//    @Override
-//    public boolean onTouch(View view, MotionEvent motionEvent) {
-//
-//        gestureDetector.onTouchEvent(motionEvent);
-//        scaleGestureDetector.onTouchEvent(motionEvent);
-//        rotationGestureDetector.onTouchEvent(motionEvent) ;
-//
-//        switch(motionEvent.getAction())
-//        {
-//            case MotionEvent.ACTION_DOWN:
-//            {
-//                move = true;
-//                sx = getX();
-//                sy = getY();
-//                px = motionEvent.getRawX();
-//                py = motionEvent.getRawY();
-//                break;
-//            }
-//
-//            case MotionEvent.ACTION_MOVE:
-//            {
-//               if(move)
-//                {
-//                    float x_cord = motionEvent.getRawX() ;
-//                    float y_cord = motionEvent.getRawY();
-//
-//                    float dx = x_cord - px;
-//                    float dy = y_cord - py;
-//
-//                    float vx = sx + dx;
-//                    float vy = sy + dy;
-//                    tx = vx;
-//                    ty = vy;
-//                    setX(tx);
-//                    setY(ty);
-//                }
-//
-//                break;
-//
-//            }
-//
-//            case MotionEvent.ACTION_POINTER_DOWN:
-//            {
-//                move = true;
-//                sx = getX();
-//                sy = getY();
-//                px = motionEvent.getRawX();
-//                py = motionEvent.getRawY();
-//                break;
-//            }
-//
-//            case MotionEvent.ACTION_POINTER_UP:
-//            {
-//                move = false;
-//                break;
-//            }
-//            case MotionEvent.ACTION_UP:
-//            {
-//                move = false;
-//                break;
-//            }
-//        }
-//        return true;
-//    }
-
     public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
     {
         @Override
@@ -234,93 +161,6 @@ public class CustomBitmap extends ImageView
             scaleGestureDetector.onTouchEvent(motionEvent);
             rotationGestureDetector.onTouchEvent(motionEvent) ;
 
-//
-//            switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
-//                case MotionEvent.ACTION_DOWN: {
-//                    if (!scaleGestureDetector.isInProgress()) {
-//                        final float x = motionEvent.getX();
-//                        final float y = motionEvent.getY();
-//
-//                        mLastTouchX = x;
-//                        mLastTouchY = y;
-//
-//                        mActivePointerId = motionEvent.getPointerId(0);
-//                    }
-//                    break;
-//                }
-//
-//                case MotionEvent.ACTION_POINTER_DOWN: {
-//                    if (!scaleGestureDetector.isInProgress()) {
-//                        final float gx = scaleGestureDetector.getFocusX();
-//                        final float gy = scaleGestureDetector.getFocusY();
-//
-//                        mLastGestureX = gx;
-//                        mLastGestureY = gy;
-//                    }
-//                    break;
-//                }
-//
-//                case MotionEvent.ACTION_MOVE: {
-//                    if (!scaleGestureDetector.isInProgress()) {
-//                        final int pointerIndex = motionEvent.findPointerIndex(mActivePointerId);
-//                        final float x = motionEvent.getX(pointerIndex);
-//                        final float y = motionEvent.getY(pointerIndex);
-//
-//                        final float dx = x - mLastTouchX;
-//                        final float dy = y - mLastTouchY;
-//
-//                        mPosX += dx;
-//                        mPosY += dy;
-//
-//                        invalidate();
-//
-//                        mLastTouchX = x;
-//                        mLastTouchY = y;
-//                    } else {
-//                        final float gx = scaleGestureDetector.getFocusX();
-//                        final float gy = scaleGestureDetector.getFocusY();
-//
-//                        final float gdx = gx - mLastGestureX;
-//                        final float gdy = gy - mLastGestureY;
-//
-//                        mPosX += gdx;
-//                        mPosY += gdy;
-//
-//                        // SOMETHING NEEDS TO HAPPEN RIGHT HERE.
-//
-//                        invalidate();
-//
-//                        mLastGestureX = gx;
-//                        mLastGestureY = gy;
-//                    }
-//
-//                    break;
-//                }
-//
-//                case MotionEvent.ACTION_POINTER_UP: {
-//
-//                    final int pointerIndex = (motionEvent.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
-//                    final int pointerId = motionEvent.getPointerId(pointerIndex);
-//                    if (pointerId == mActivePointerId) {
-//                        // This was our active pointer going up. Choose a new
-//                        // active pointer and adjust accordingly.
-//                        final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-//
-//                        mLastTouchX = motionEvent.getX(newPointerIndex);
-//                        mLastTouchY = motionEvent.getY(newPointerIndex);
-//
-//                        mActivePointerId = motionEvent.getPointerId(newPointerIndex);
-//                    } else {
-//                        final int tempPointerIndex = motionEvent.findPointerIndex(mActivePointerId);
-//
-//                        mLastTouchX = motionEvent.getX(tempPointerIndex);
-//                        mLastTouchY = motionEvent.getY(tempPointerIndex);
-//                    }
-//
-//                    break;
-//                }
-//            }
-
             switch(motionEvent.getAction())
             {
                 case MotionEvent.ACTION_DOWN:
@@ -330,12 +170,17 @@ public class CustomBitmap extends ImageView
                     sy = getY();
                     px = motionEvent.getRawX();
                     py = motionEvent.getRawY();
+                    if(instance == null)
+                    {
+                        instance = (CustomBitmap)view;
+                    }
+
                     break;
                 }
 
                 case MotionEvent.ACTION_MOVE:
                 {
-                    if(move)
+                    if(move && instance == view)
                     {
                         float x_cord = motionEvent.getRawX() ;
                         float y_cord = motionEvent.getRawY();
@@ -350,6 +195,7 @@ public class CustomBitmap extends ImageView
 
                         setX(tx);
                         setY(ty);
+                        instance = (CustomBitmap)view;
 
                     }
 
@@ -364,17 +210,24 @@ public class CustomBitmap extends ImageView
                     sy = getY();
                     px = motionEvent.getRawX();
                     py = motionEvent.getRawY();
+
                     break;
                 }
 
                 case MotionEvent.ACTION_POINTER_UP:
                 {
                     move = false;
+
                     break;
                 }
                 case MotionEvent.ACTION_UP:
                 {
                     move = false;
+                    if(instance != null)
+                    {
+                        instance = null;
+
+                    }
                     break;
                 }
             }
