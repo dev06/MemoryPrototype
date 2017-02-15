@@ -74,7 +74,7 @@ public class CanvasEditFragment extends Fragment
 
             @Override
             public void onClick(View v) {
-
+                // generates the alert builder dialog
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("Memory Name");
                 builder.setIcon(R.mipmap.ic_launcher);
@@ -83,7 +83,7 @@ public class CanvasEditFragment extends Fragment
                 editText.setInputType(InputType.TYPE_CLASS_TEXT);
                 editText.requestFocus();
                 builder.setView(editText);
-
+                // positive button for button press.
                 builder.setPositiveButton("Finish", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -109,13 +109,7 @@ public class CanvasEditFragment extends Fragment
                     }
                 });
 
-
-
-
                 builder.show();
-
-
-
             }
         });
 
@@ -167,7 +161,19 @@ public class CanvasEditFragment extends Fragment
             case R.id.menu_text:
             {
                 CustomText customText = new CustomText(getContext(), null, true);
-                relativeLayout.addView(customText);
+
+
+
+                relativeLayout.addView(customText,relativeLayout.getChildCount());
+                customText.bringToFront();
+                customText.invalidate();
+                relativeLayout.requestLayout();
+
+                for(int i = 0;i  <relativeLayout.getChildCount(); i++)
+                {
+                    Log.d("Test", relativeLayout.getChildAt(i).toString() + "");
+                }
+
                 customTexts.add(customText);
                 break;
             }
@@ -253,7 +259,16 @@ public class CanvasEditFragment extends Fragment
                     {
                         CustomBitmap customBitmap = new CustomBitmap(getActivity(), null, bitmap, view, true);
                         customBitmaps.add(customBitmap);
-                        relativeLayout.addView(customBitmap);
+                        relativeLayout.addView(customBitmap, relativeLayout.getChildCount());
+                        customBitmap.bringToFront();
+                        customBitmap.invalidate();
+                        relativeLayout.requestLayout();
+
+
+                        for(int i = 0;i  <relativeLayout.getChildCount(); i++)
+                        {
+                            Log.d("Test", relativeLayout.getChildAt(i).toString() + "");
+                        }
                     }
 
                 } catch (IOException e) {
@@ -303,13 +318,7 @@ public class CanvasEditFragment extends Fragment
 
            DisplayMetrics displayMetrics = new DisplayMetrics();
             getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            float ratio = (float)displayMetrics.widthPixels / (float)displayMetrics.heightPixels;
-            Log.d("Vay", ratio + "");
-
             result = Bitmap.createScaledBitmap(source, (int)(source.getWidth()), (int)(source.getHeight() ), true);
-
-
-
         }catch(Exception e)
         {
 

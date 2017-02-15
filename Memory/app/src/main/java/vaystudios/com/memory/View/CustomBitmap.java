@@ -92,6 +92,7 @@ public class CustomBitmap extends ImageView
 
         Init();
 
+
     }
 
     public void setInteract(boolean interact)
@@ -123,6 +124,8 @@ public class CustomBitmap extends ImageView
             setClickable(instance == this);
             setLayoutParams(layoutParams);
         }
+
+
     }
 
 

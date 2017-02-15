@@ -106,6 +106,10 @@ public class CustomText extends EditText {
             }
         });
 
+
+
+        setBackground(null);
+
     }
 
 
@@ -133,15 +137,14 @@ public class CustomText extends EditText {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
 
         if(keyboardActive)
             setX(metrics.widthPixels / 2 - getWidth() / 2);
 
-        setBackground(null);
-        super.onDraw(canvas);
 
 
-
+        getParent().requestLayout();
     }
 
 
