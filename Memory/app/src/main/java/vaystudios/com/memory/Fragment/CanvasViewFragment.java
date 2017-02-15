@@ -36,17 +36,26 @@ public class CanvasViewFragment extends Fragment {
         if(memoryObject != null)
         {
             relativeLayout.removeAllViews();
-            for(int i = 0;i < memoryObject.texts.size(); i++)
+
+            if(memoryObject.texts != null)
             {
-                memoryObject.texts.get(i).setInteract(false);
-                relativeLayout.addView(memoryObject.texts.get(i));
+                for(int i = 0;i < memoryObject.texts.size(); i++)
+                {
+                    memoryObject.texts.get(i).setInteract(false);
+                    relativeLayout.addView(memoryObject.texts.get(i));
+                }
+
             }
 
-            for(int i = 0;i < memoryObject.bitmaps.size(); i++)
+            if(memoryObject.bitmaps != null)
             {
-                memoryObject.bitmaps.get(i).setInteract(false);
-                relativeLayout.addView(memoryObject.bitmaps.get(i));
+                for(int i = 0;i < memoryObject.bitmaps.size(); i++)
+                {
+                    memoryObject.bitmaps.get(i).setInteract(false);
+                    relativeLayout.addView(memoryObject.bitmaps.get(i));
+                }
             }
+
         }
         return view;
     }

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,9 +35,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import vaystudios.com.memory.Database.DatabaseHandler;
 import vaystudios.com.memory.MainActivity;
 import vaystudios.com.memory.Object.MemoryObject;
 import vaystudios.com.memory.R;
+import vaystudios.com.memory.View.CustomArt;
 import vaystudios.com.memory.View.CustomBitmap;
 import vaystudios.com.memory.View.CustomText;
 
@@ -68,6 +71,23 @@ public class CanvasEditFragment extends Fragment
         ImageView canvasOptionButton = (ImageView)view.findViewById(R.id.btn_canvasOption);
         ImageView canvasCompleteButton = (ImageView)view.findViewById(R.id.btn_canvasComplete);
 
+        relativeLayout = (RelativeLayout)view.findViewById(R.id.canvas_layout);
+        relativeLayout.setFocusable(true);
+        relativeLayout.setFocusableInTouchMode(true);
+        this.view = view;
+
+
+
+
+        for(int i = 0;i < 3; i++)
+        {
+            CustomBitmap customBitmap = new CustomBitmap(getActivity(), null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher), view, true);
+            customBitmaps.add(customBitmap);
+            relativeLayout.addView(customBitmap);
+
+        }
+
+
         // user finishes designing the canvas and wants to finish it up.
         canvasCompleteButton.setOnClickListener(new View.OnClickListener() {
             MemoryObject memoryObject = new MemoryObject("New Memory!");
@@ -92,8 +112,19 @@ public class CanvasEditFragment extends Fragment
                             memoryObject.title = editText.getText().toString();
                             memoryObject.texts = customTexts;
                             memoryObject.bitmaps = customBitmaps;
+
+                            DatabaseHandler databaseHandler = new DatabaseHandler(getActivity().getBaseContext());
+                            databaseHandler.open();
+
+                            databaseHandler.createMemory(memoryObject.title.toString());
+                            databaseHandler.upadateNote(0, memoryObject.title.toString());
+                            databaseHandler.close();
+
+
+
                             MainActivity.memoryObjects.add(0, memoryObject);
                             relativeLayout.removeAllViews();
+
                             MemoryListFragment memoryListFragment = new MemoryListFragment();
                             getFragmentManager().beginTransaction().replace(R.id.activity_main, memoryListFragment).commit();
                         }else
@@ -114,15 +145,17 @@ public class CanvasEditFragment extends Fragment
         });
 
 
-        relativeLayout = (RelativeLayout)view.findViewById(R.id.canvas_layout);
-        this.view = view;
+
+
+
 
 
         canvasOptionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 view.showContextMenu();
-            }
+
+        }
         });
 
         registerForContextMenu(canvasOptionButton);
@@ -160,21 +193,12 @@ public class CanvasEditFragment extends Fragment
 
             case R.id.menu_text:
             {
-                CustomText customText = new CustomText(getContext(), null, true);
+                CustomText customText = new CustomText(getContext(), null,view, true);
 
-
-
-                relativeLayout.addView(customText,relativeLayout.getChildCount());
-                customText.bringToFront();
-                customText.invalidate();
-                relativeLayout.requestLayout();
-
-                for(int i = 0;i  <relativeLayout.getChildCount(); i++)
-                {
-                    Log.d("Test", relativeLayout.getChildAt(i).toString() + "");
-                }
+                relativeLayout.addView(customText);
 
                 customTexts.add(customText);
+
                 break;
             }
 
@@ -259,16 +283,8 @@ public class CanvasEditFragment extends Fragment
                     {
                         CustomBitmap customBitmap = new CustomBitmap(getActivity(), null, bitmap, view, true);
                         customBitmaps.add(customBitmap);
-                        relativeLayout.addView(customBitmap, relativeLayout.getChildCount());
-                        customBitmap.bringToFront();
-                        customBitmap.invalidate();
-                        relativeLayout.requestLayout();
+                        relativeLayout.addView(customBitmap);
 
-
-                        for(int i = 0;i  <relativeLayout.getChildCount(); i++)
-                        {
-                            Log.d("Test", relativeLayout.getChildAt(i).toString() + "");
-                        }
                     }
 
                 } catch (IOException e) {

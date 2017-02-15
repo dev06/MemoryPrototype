@@ -35,31 +35,36 @@ import vaystudios.com.memory.Util.RotationGestureDetector;
 
 public class CustomText extends EditText {
 
+    private static CustomText instance;
     private GestureDetector gestureDetector;
     private RotationGestureDetector rotationGestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private boolean interact;
-
+    private boolean move;
     private float mScaleFactor = 1f;
     private float mAngle;
-    float px;
-    float py;
-    float sx, sy;
-    float tx, ty;
-    float scale = 50;
-    boolean move;
-    float saveRot;
-    float saveX;
-    float saveY;
-    float saveScaleX;
-    float saveScaleY;
-    Paint paint;
-    Display display;
-    DisplayMetrics metrics = new DisplayMetrics();
-
-    public CustomText(Context context, AttributeSet attrs, boolean interact) {
+    private float px;
+    private float py;
+    private float sx, sy;
+    private float tx, ty;
+    private float scale = 50;
+    private float saveRot;
+    private float saveX;
+    private float saveY;
+    private float saveScaleX;
+    private float saveScaleY;
+    private View[] canvasUI;
+    private Paint paint;
+    private Display display;
+    private DisplayMetrics metrics = new DisplayMetrics();
+    private View parentView;
+    public CustomText(Context context, AttributeSet attrs, View parentView, boolean interact) {
         super(context, attrs);
         this.interact = interact;
+        this.parentView = parentView;
+        canvasUI= new View[2];
+        canvasUI[0] = parentView.findViewById(R.id.btn_canvasOption);
+        canvasUI[1] = parentView.findViewById(R.id.btn_canvasComplete);
 
         Typeface face= Typeface.createFromAsset(context.getAssets(), "arial.ttf");
         this.setTypeface(face);
@@ -76,11 +81,12 @@ public class CustomText extends EditText {
         setY(0);
 
 
-        setText("New Text ");
+
+        setHint("New Text");
         setTextSize(30);
         Init();
 
-        setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
         setSingleLine(false);
         setHorizontallyScrolling(false);
 
@@ -105,8 +111,6 @@ public class CustomText extends EditText {
                 return false;
             }
         });
-
-
 
         setBackground(null);
 
@@ -142,9 +146,6 @@ public class CustomText extends EditText {
         if(keyboardActive)
             setX(metrics.widthPixels / 2 - getWidth() / 2);
 
-
-
-        getParent().requestLayout();
     }
 
 
@@ -162,6 +163,8 @@ public class CustomText extends EditText {
                 mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor ,3.0f));
                 newScale += -(previousScale - mScaleFactor) * 100.0f;
                 previousScale = mScaleFactor;
+
+
 
                 if(!keyboardActive)
                 {
@@ -197,11 +200,13 @@ public class CustomText extends EditText {
     {
         if(interact)
         {
+
             requestFocus();
             if(isFocused())
             {
                 saveX = getX();
                 saveY = getY();
+
                 saveRot = mAngle;
                 saveScaleX = getScaleX();
                 saveScaleY = getScaleY();
@@ -213,9 +218,11 @@ public class CustomText extends EditText {
                 setCursorVisible(true);
                 InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
+
                 setSelection(getText().length());
                 keyboardActive = true;
             }
+
 
         }
 
@@ -229,7 +236,6 @@ public class CustomText extends EditText {
         {
             InputMethodManager inputMethodManager = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-            this.clearFocus();
             setCursorVisible(false);
             keyboardActive = false;
             setRotation(saveRot);
@@ -238,13 +244,13 @@ public class CustomText extends EditText {
             setY(saveY);
             setScaleX(saveScaleX);
             setScaleY(saveScaleY);
+            this.clearFocus();
         }
 
     }
 
 
     boolean keyboardActive;
-
 
     public class TouchListener implements  View.OnTouchListener
     {
@@ -269,12 +275,17 @@ public class CustomText extends EditText {
                         sy = getY();
                         px = motionEvent.getRawX();
                         py = motionEvent.getRawY();
+                        if(instance == null)
+                        {
+                            instance = (CustomText) view;
+                        }
+
                         break;
                     }
 
                     case MotionEvent.ACTION_MOVE:
                     {
-                        if(move)
+                        if(move && instance == view)
                         {
                             float x_cord = motionEvent.getRawX() ;
                             float y_cord = motionEvent.getRawY();
@@ -289,6 +300,10 @@ public class CustomText extends EditText {
                             if(!keyboardActive)
                                 setX(tx);
                             setY(ty);
+                            instance = (CustomText) view;
+
+                            hideCanvasUI();
+
                         }
 
                         break;
@@ -312,15 +327,19 @@ public class CustomText extends EditText {
                     }
                     case MotionEvent.ACTION_UP:
                     {
-                        //  setScaleX(1.51f);
-                        //  setScaleX(1.51f);
+
                         move = false;
+                        if(instance != null && instance == view)
+                        {
+                            instance = null;
+                        }
+                        showCanvasUI();
                         break;
                     }
                 }
             }
 
-            return true;
+            return instance == view;
         }
     }
 
@@ -339,10 +358,9 @@ public class CustomText extends EditText {
             {
                 showKeyboard();
 
-            }else
-            {
-
             }
+
+
             return true;
         }
 
@@ -353,8 +371,26 @@ public class CustomText extends EditText {
             {
                 hideKeyboard();
             }
+
             return true;
         }
     }
+
+    private void hideCanvasUI()
+    {
+        canvasUI[0].setVisibility(View.INVISIBLE);
+        canvasUI[1].setVisibility(View.INVISIBLE);
+
+    }
+
+    private void showCanvasUI()
+    {
+        canvasUI[0].setVisibility(View.VISIBLE);
+        canvasUI[1].setVisibility(View.VISIBLE);
+
+
+
+    }
+
 
 }

@@ -3,16 +3,12 @@ package vaystudios.com.memory.View;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.support.v4.view.GestureDetectorCompat;
+import android.transition.Visibility;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -20,11 +16,10 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
 import vaystudios.com.memory.R;
 import vaystudios.com.memory.Util.RotationGestureDetector;
 
@@ -34,6 +29,8 @@ import vaystudios.com.memory.Util.RotationGestureDetector;
 
 public class CustomBitmap extends ImageView
 {
+
+
 
     private static CustomBitmap instance;
     private boolean interact;
@@ -47,23 +44,27 @@ public class CustomBitmap extends ImageView
     private RotationGestureDetector rotationGestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
 
-
+    private boolean move;
     private float mScaleFactor = 1f;
     private float mAngle;
-    float px;
-    float py;
-    float sx, sy;
-    float tx, ty;
+    private float px;
+    private float py;
+    private float sx, sy;
+    private float tx, ty;
+    private View[] canvasUI;
 
 
     private void Init()
     {
-        setOnTouchListener(new TouchListener());
         view = (View)this;
+
+        setOnTouchListener(new TouchListener());
+
         gestureDetector = new GestureDetector(getContext(), new GestureListener());
         scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
         rotationGestureDetector = new RotationGestureDetector(new RotationGestureListener(), this);
         setElevation(10);
+
 
 
         setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
@@ -80,17 +81,21 @@ public class CustomBitmap extends ImageView
    }
 
     public CustomBitmap(Activity context, AttributeSet attrs, Bitmap bitmap, View parentView, boolean interact) {
-        super(context, attrs);
+        super(context, attrs, 0);
+        Init();
         this.c = context;
         this.parentView = parentView;
         this.bitmap = bitmap;
         this.interact = interact;
         paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
+        canvasUI = new View[2];
+        canvasUI[0] = parentView.findViewById(R.id.btn_canvasOption);
+        canvasUI[1] = parentView.findViewById(R.id.btn_canvasComplete);
 
         setImageDrawable(easyRound(bitmap, 50));
 
-        Init();
+        setZ(-1);
 
 
     }
@@ -121,15 +126,16 @@ public class CustomBitmap extends ImageView
             RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)getLayoutParams();
             layoutParams.width = (int)(bitmap.getWidth() * mScaleFactor);
             layoutParams.height = (int)(bitmap.getHeight() * mScaleFactor);
-            setClickable(instance == this);
             setLayoutParams(layoutParams);
         }
 
 
+
     }
 
+    private float previousScale;
+    float newScale = 20.0f;
 
-    boolean move;
     public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
     {
         @Override
@@ -139,10 +145,17 @@ public class CustomBitmap extends ImageView
             {
                 mScaleFactor*= detector.getScaleFactor();
                 mScaleFactor = Math.max(0.5f, Math.min(mScaleFactor ,5.0f));
+//                Log.d("vay", mScaleFactor + " " + newScale);
+//                newScale += -(previousScale - mScaleFactor) * 100.0f;
+//                previousScale = mScaleFactor;
+//                setScaleX(newScale / 100.0f);
+//                setScaleY(newScale / 100.0f);
+
                 invalidate();
+
             }
 
-            return interact;
+            return true;
         }
     }
 
@@ -189,6 +202,8 @@ public class CustomBitmap extends ImageView
                             instance = (CustomBitmap)view;
                         }
 
+
+                        hideCanvasUI();
                         break;
                     }
 
@@ -210,7 +225,7 @@ public class CustomBitmap extends ImageView
                             setX(tx);
                             setY(ty);
                             instance = (CustomBitmap)view;
-
+                            hideCanvasUI();
                         }
 
                         break;
@@ -242,11 +257,11 @@ public class CustomBitmap extends ImageView
                             instance = null;
 
                         }
+                        showCanvasUI();
                         break;
                     }
                 }
             }
-
             return true;
         }
     }
@@ -265,12 +280,30 @@ public class CustomBitmap extends ImageView
             view.showContextMenu();
             return true;
         }
+
+
     }
 
 
     @Override
     protected void onCreateContextMenu(ContextMenu menu) {
         super.onCreateContextMenu(menu);
+
+    }
+
+
+    private void hideCanvasUI()
+    {
+        canvasUI[0].setVisibility(View.INVISIBLE);
+        canvasUI[1].setVisibility(View.INVISIBLE);
+
+    }
+
+    private void showCanvasUI()
+    {
+        canvasUI[0].setVisibility(View.VISIBLE);
+        canvasUI[1].setVisibility(View.VISIBLE);
+
 
     }
 
