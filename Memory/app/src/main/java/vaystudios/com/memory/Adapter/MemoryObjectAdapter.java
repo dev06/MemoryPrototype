@@ -49,10 +49,7 @@ public class MemoryObjectAdapter extends ArrayAdapter<MemoryObject> {
 
         if(holder != null)
         {
-
-
             holder.title.setText(memoryObject.title);
-
         }
 
 

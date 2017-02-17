@@ -80,14 +80,6 @@ public class CanvasEditFragment extends Fragment
 
 
 
-        for(int i = 0;i < 3; i++)
-        {
-            CustomBitmap customBitmap = new CustomBitmap(getActivity(), null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher), view, true);
-            customBitmaps.add(customBitmap);
-            relativeLayout.addView(customBitmap);
-
-        }
-
 
         // user finishes designing the canvas and wants to finish it up.
         canvasCompleteButton.setOnClickListener(new View.OnClickListener() {
@@ -115,10 +107,9 @@ public class CanvasEditFragment extends Fragment
 
                             DatabaseHandler databaseHandler = new DatabaseHandler(getActivity().getBaseContext());
                             databaseHandler.open();
-
-                            databaseHandler.createMemory(memoryObject.id + "", memoryObject.title.toString());
                             memoryObject.texts = customTexts;
                             memoryObject.bitmaps = customBitmaps;
+                            databaseHandler.createMemory(memoryObject);
                             databaseHandler.close();
 
 
@@ -353,9 +344,4 @@ public class CanvasEditFragment extends Fragment
         path = image.getAbsolutePath();
         return image;
     }
-
-
-
-
-
 }

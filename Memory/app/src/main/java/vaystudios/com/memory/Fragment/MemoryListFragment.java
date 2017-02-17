@@ -71,39 +71,6 @@ public class MemoryListFragment extends Fragment
                 canvasViewFragment.setMemoryObject(memoryObject);
                 getFragmentManager().beginTransaction().addToBackStack(canvasViewFragment + "").replace(R.id.activity_main, canvasViewFragment, canvasViewFragment + "").commit();
 
-
-//
-//
-//                final TextView textView = new TextView(getContext());
-//                final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-//                builder.setView(textView);
-//                builder.setTitle("Delete");
-//                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialogInterface, int i) {
-//                        DatabaseHandler databaseHandler = new DatabaseHandler(getActivity().getBaseContext());
-//                        databaseHandler.open();
-//                        databaseHandler.deleteMemory(memoryObject.id);
-//                        MainActivity.memoryObjects.clear();
-//                        MainActivity.memoryObjects.addAll(databaseHandler.getAllMemory());
-//                        adapter.notifyDataSetChanged();
-//                        databaseHandler.close();
-//                    }
-//                });
-//
-//                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialogInterface, int i) {
-//                        dialogInterface.cancel();
-//                    }
-//                });
-//
-//                builder.show();
-//
-//
-//
-
-
             }
         });
 

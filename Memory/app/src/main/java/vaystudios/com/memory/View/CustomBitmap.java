@@ -20,6 +20,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import vaystudios.com.memory.R;
 import vaystudios.com.memory.Util.RotationGestureDetector;
 
@@ -31,7 +34,7 @@ public class CustomBitmap extends ImageView
 {
 
 
-
+    public Bitmap b;
     private static CustomBitmap instance;
     private boolean interact;
     private View view;
@@ -92,12 +95,18 @@ public class CustomBitmap extends ImageView
         canvasUI = new View[2];
         canvasUI[0] = parentView.findViewById(R.id.btn_canvasOption);
         canvasUI[1] = parentView.findViewById(R.id.btn_canvasComplete);
-
         setImageDrawable(easyRound(bitmap, 50));
-
         setZ(-1);
+    }
 
 
+    public byte[] ToBytes()
+    {
+        byte[] bytes = null;
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream);
+        bytes = stream.toByteArray();
+        return bytes;
     }
 
     public void setInteract(boolean interact)
@@ -133,8 +142,6 @@ public class CustomBitmap extends ImageView
 
     }
 
-    private float previousScale;
-    float newScale = 20.0f;
 
     public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
     {
@@ -145,16 +152,8 @@ public class CustomBitmap extends ImageView
             {
                 mScaleFactor*= detector.getScaleFactor();
                 mScaleFactor = Math.max(0.5f, Math.min(mScaleFactor ,5.0f));
-//                Log.d("vay", mScaleFactor + " " + newScale);
-//                newScale += -(previousScale - mScaleFactor) * 100.0f;
-//                previousScale = mScaleFactor;
-//                setScaleX(newScale / 100.0f);
-//                setScaleY(newScale / 100.0f);
-
                 invalidate();
-
             }
-
             return true;
         }
     }

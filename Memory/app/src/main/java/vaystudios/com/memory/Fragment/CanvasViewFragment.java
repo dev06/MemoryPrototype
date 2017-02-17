@@ -13,6 +13,7 @@ import android.widget.Toast;
 import vaystudios.com.memory.Object.MemoryObject;
 import vaystudios.com.memory.R;
 import vaystudios.com.memory.View.CanvasView;
+import vaystudios.com.memory.View.CustomBitmap;
 
 /**
  * Created by Devan on 2/13/2017.
@@ -47,6 +48,10 @@ public class CanvasViewFragment extends Fragment {
 
             }
 
+
+            CustomBitmap customBitmap = new CustomBitmap(getActivity(), null, memoryObject.myBitmap, relativeLayout, false);
+            relativeLayout.addView(customBitmap);
+            Log.d("Test", memoryObject.myBitmap + "");
             if(memoryObject.bitmaps != null)
             {
                 for(int i = 0;i < memoryObject.bitmaps.size(); i++)

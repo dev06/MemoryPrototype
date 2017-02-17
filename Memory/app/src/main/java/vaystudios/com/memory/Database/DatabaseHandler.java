@@ -6,11 +6,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import vaystudios.com.memory.Object.MemoryObject;
+import vaystudios.com.memory.View.CustomBitmap;
 
 /**
  * Created by Devan on 2/14/2017.
@@ -19,21 +23,24 @@ import vaystudios.com.memory.Object.MemoryObject;
 public class DatabaseHandler
 {
     private static final String DATABASE_NAME = "memory.db";
-    private static final int DATA_VERSION = 1;
+    private static final int DATA_VERSION = 2;
 
     public static final String MEMORY_TABLE = "memory";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_TITLE = "title";
+    public static final String COLUMN_BITMAP= "bitmap";
 
 
-    private String[] allColumns = {COLUMN_ID, COLUMN_TITLE};
+    private String[] allColumns = {COLUMN_ID, COLUMN_TITLE, COLUMN_BITMAP};
     private SQLiteDatabase sqlDB;
     private Context context;
     private MemoryDbHelper memoryDbHelper;
 
     public static final String CREATE_TABLE_MEMORY = "create table " + MEMORY_TABLE + " ( "
             + COLUMN_ID + " integer primary key autoincrement, "
-            + COLUMN_TITLE + " text not null " +
+            + COLUMN_TITLE + " text not null, "
+            + COLUMN_BITMAP + " BLOB "
+            +
             ");";
 
 
@@ -54,24 +61,28 @@ public class DatabaseHandler
 
 
 
-    public MemoryObject createMemory(String id, String title) {
+
+    public void createMemory(MemoryObject memoryObject) {
         ContentValues values = new ContentValues();
-        values.put(COLUMN_ID, id);
-        values.put(COLUMN_TITLE, title);
+        values.put(COLUMN_ID, memoryObject.id);
+        values.put(COLUMN_TITLE, memoryObject.title);
+        values.put(COLUMN_BITMAP, memoryObject.bitmaps.get(0).ToBytes());
+
+
+        sqlDB.insert(MEMORY_TABLE, null, values);
 
 
 
-        long insertId = sqlDB.insert(MEMORY_TABLE, null, values);
-
-        Cursor cursor = sqlDB.query(MEMORY_TABLE, allColumns, COLUMN_ID + " = " + insertId, null, null, null, null);
-
-        cursor.moveToFirst();
-
-        MemoryObject newNote = cursorToNote(cursor);
-
-        cursor.close();
-
-        return newNote;
+//
+//        Cursor cursor = sqlDB.query(MEMORY_TABLE, allColumns, COLUMN_ID + " = " + insertId, null, null, null, null);
+//
+//        cursor.moveToFirst();
+//
+//        MemoryObject newNote = cursorToNote(cursor);
+//
+//        cursor.close();
+//
+//        return newNote;
     }
 
 
@@ -92,14 +103,14 @@ public class DatabaseHandler
 
     public long deleteMemory(long id)
     {
-        //want to delete the note where column id == idToDelete
-      //  return sqlDB.delete("DELETE FROM ", MEMORY_TABLE + " WHERE " + COLUMN_TITLE + "=\"" + title + "\";");
-
          return sqlDB.delete(MEMORY_TABLE, COLUMN_ID + "=" + id ,null);
     }
 
     private MemoryObject cursorToNote(Cursor cursor) {
         MemoryObject newNote = new MemoryObject(Integer.parseInt(cursor.getString(0)), cursor.getString(1));
+        newNote.myBitmap = BitmapFactory.decodeByteArray(cursor.getBlob(2), 0, cursor.getBlob(2).length);
+
+
         return newNote;
     }
 
