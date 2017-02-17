@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 
 import vaystudios.com.memory.Database.DatabaseHandler;
 import vaystudios.com.memory.MainActivity;
@@ -90,7 +91,7 @@ public class CanvasEditFragment extends Fragment
 
         // user finishes designing the canvas and wants to finish it up.
         canvasCompleteButton.setOnClickListener(new View.OnClickListener() {
-            MemoryObject memoryObject = new MemoryObject("New Memory!");
+            MemoryObject memoryObject = new MemoryObject(new Random().nextInt(),"New Memory!");
 
             @Override
             public void onClick(View v) {
@@ -110,14 +111,14 @@ public class CanvasEditFragment extends Fragment
                         if(editText.getText().length() > 0)
                         {
                             memoryObject.title = editText.getText().toString();
-                            memoryObject.texts = customTexts;
-                            memoryObject.bitmaps = customBitmaps;
+
 
                             DatabaseHandler databaseHandler = new DatabaseHandler(getActivity().getBaseContext());
                             databaseHandler.open();
 
-                            databaseHandler.createMemory(memoryObject.title.toString());
-                            databaseHandler.upadateNote(0, memoryObject.title.toString());
+                            databaseHandler.createMemory(memoryObject.id + "", memoryObject.title.toString());
+                            memoryObject.texts = customTexts;
+                            memoryObject.bitmaps = customBitmaps;
                             databaseHandler.close();
 
 

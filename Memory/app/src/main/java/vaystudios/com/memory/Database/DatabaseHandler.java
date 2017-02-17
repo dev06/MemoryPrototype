@@ -54,10 +54,11 @@ public class DatabaseHandler
 
 
 
-    public MemoryObject createMemory(String title) {
+    public MemoryObject createMemory(String id, String title) {
         ContentValues values = new ContentValues();
-
+        values.put(COLUMN_ID, id);
         values.put(COLUMN_TITLE, title);
+
 
 
         long insertId = sqlDB.insert(MEMORY_TABLE, null, values);
@@ -89,16 +90,16 @@ public class DatabaseHandler
         return sqlDB.update(MEMORY_TABLE, values, COLUMN_ID + " = " + idToUpdate, null);
     }
 
-    public long deleteMemory(long title)
+    public long deleteMemory(long id)
     {
         //want to delete the note where column id == idToDelete
       //  return sqlDB.delete("DELETE FROM ", MEMORY_TABLE + " WHERE " + COLUMN_TITLE + "=\"" + title + "\";");
 
-         return sqlDB.delete(MEMORY_TABLE, COLUMN_ID + " = " + title ,null);
+         return sqlDB.delete(MEMORY_TABLE, COLUMN_ID + "=" + id ,null);
     }
 
     private MemoryObject cursorToNote(Cursor cursor) {
-        MemoryObject newNote = new MemoryObject(cursor.getString(1));
+        MemoryObject newNote = new MemoryObject(Integer.parseInt(cursor.getString(0)), cursor.getString(1));
         return newNote;
     }
 

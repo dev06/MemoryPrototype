@@ -67,11 +67,53 @@ public class MemoryListFragment extends Fragment
             {
                 //The is called when you click on a memory from the memory list fragment
                 final MemoryObject memoryObject = (MemoryObject)adapterView.getItemAtPosition(i);
-//                CanvasViewFragment canvasViewFragment = new CanvasViewFragment();
-//                canvasViewFragment.setMemoryObject(memoryObject);
-//                getFragmentManager().beginTransaction().addToBackStack(canvasViewFragment + "").replace(R.id.activity_main, canvasViewFragment, canvasViewFragment + "").commit();
+                CanvasViewFragment canvasViewFragment = new CanvasViewFragment();
+                canvasViewFragment.setMemoryObject(memoryObject);
+                getFragmentManager().beginTransaction().addToBackStack(canvasViewFragment + "").replace(R.id.activity_main, canvasViewFragment, canvasViewFragment + "").commit();
 
 
+//
+//
+//                final TextView textView = new TextView(getContext());
+//                final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+//                builder.setView(textView);
+//                builder.setTitle("Delete");
+//                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        DatabaseHandler databaseHandler = new DatabaseHandler(getActivity().getBaseContext());
+//                        databaseHandler.open();
+//                        databaseHandler.deleteMemory(memoryObject.id);
+//                        MainActivity.memoryObjects.clear();
+//                        MainActivity.memoryObjects.addAll(databaseHandler.getAllMemory());
+//                        adapter.notifyDataSetChanged();
+//                        databaseHandler.close();
+//                    }
+//                });
+//
+//                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        dialogInterface.cancel();
+//                    }
+//                });
+//
+//                builder.show();
+//
+//
+//
+
+
+            }
+        });
+
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                //The is called when you click on a memory from the memory list fragment
+
+                final MemoryObject memoryObject = (MemoryObject)parent.getItemAtPosition(position);
 
 
                 final TextView textView = new TextView(getContext());
@@ -83,7 +125,7 @@ public class MemoryListFragment extends Fragment
                     public void onClick(DialogInterface dialogInterface, int i) {
                         DatabaseHandler databaseHandler = new DatabaseHandler(getActivity().getBaseContext());
                         databaseHandler.open();
-                        databaseHandler.deleteMemory(0);
+                        databaseHandler.deleteMemory(memoryObject.id);
                         MainActivity.memoryObjects.clear();
                         MainActivity.memoryObjects.addAll(databaseHandler.getAllMemory());
                         adapter.notifyDataSetChanged();
@@ -101,44 +143,9 @@ public class MemoryListFragment extends Fragment
                 builder.show();
 
 
-
-
-
+                return true;
             }
         });
-
-
-//        listView.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View view) {
-//                final View view1 = view;
-//                final TextView textView = new TextView(getContext());
-//                final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-//                builder.setView(textView);
-//                builder.setTitle("Delete");
-//                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialogInterface, int i) {
-//                        DatabaseHandler databaseHandler = new DatabaseHandler(getActivity().getBaseContext());
-//                        databaseHandler.open();
-//                        databaseHandler.deleteMemory(view1.getId());
-//                        MainActivity.memoryObjects.clear();
-//                        MainActivity.memoryObjects.addAll(databaseHandler.getAllMemory());
-//                        databaseHandler.close();
-//                    }
-//                });
-//
-//                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialogInterface, int i) {
-//                        dialogInterface.cancel();
-//                    }
-//                });
-//
-//                builder.show();
-//                return true;
-//            }
-//        });
 
         return view;
     }

@@ -12,12 +12,14 @@ import vaystudios.com.memory.View.CustomText;
 
 public class MemoryObject
 {
+    public int id;
     public String title;
     public ArrayList<CustomBitmap> bitmaps;
     public ArrayList<CustomText> texts;
 
-    public MemoryObject(String title)
+    public MemoryObject(int id, String title)
     {
+        this.id = id;
         this.title = title;
     }
 
