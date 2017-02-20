@@ -66,23 +66,10 @@ public class DatabaseHandler
         ContentValues values = new ContentValues();
         values.put(COLUMN_ID, memoryObject.id);
         values.put(COLUMN_TITLE, memoryObject.title);
-        values.put(COLUMN_BITMAP, memoryObject.bitmaps.get(0).ToBytes());
 
 
         sqlDB.insert(MEMORY_TABLE, null, values);
 
-
-
-//
-//        Cursor cursor = sqlDB.query(MEMORY_TABLE, allColumns, COLUMN_ID + " = " + insertId, null, null, null, null);
-//
-//        cursor.moveToFirst();
-//
-//        MemoryObject newNote = cursorToNote(cursor);
-//
-//        cursor.close();
-//
-//        return newNote;
     }
 
 

@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.Random;
 
 import vaystudios.com.memory.Database.DatabaseHandler;
+import vaystudios.com.memory.IO.DataSaver;
 import vaystudios.com.memory.MainActivity;
 import vaystudios.com.memory.Object.MemoryObject;
 import vaystudios.com.memory.R;
@@ -54,11 +55,11 @@ public class CanvasEditFragment extends Fragment
 {
     private ArrayList<CustomText> customTexts = new ArrayList<CustomText>();
     private ArrayList<CustomBitmap> customBitmaps = new ArrayList<CustomBitmap>();
+    private DataSaver dataSaver;
 
-
-    RelativeLayout relativeLayout;
-    View view;
-    String path;
+    private RelativeLayout relativeLayout;
+    private View view;
+    private String path;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,12 +73,17 @@ public class CanvasEditFragment extends Fragment
         ImageView canvasOptionButton = (ImageView)view.findViewById(R.id.btn_canvasOption);
         ImageView canvasCompleteButton = (ImageView)view.findViewById(R.id.btn_canvasComplete);
 
+        dataSaver = new DataSaver();
         relativeLayout = (RelativeLayout)view.findViewById(R.id.canvas_layout);
         relativeLayout.setFocusable(true);
         relativeLayout.setFocusableInTouchMode(true);
         this.view = view;
 
-
+        for(int i =0;i < 3; i++)
+        {
+            CustomBitmap customBitmap = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher), relativeLayout, true);
+            relativeLayout.addView(customBitmap);
+        }
 
 
 
@@ -105,13 +111,8 @@ public class CanvasEditFragment extends Fragment
                             memoryObject.title = editText.getText().toString();
 
 
-                            DatabaseHandler databaseHandler = new DatabaseHandler(getActivity().getBaseContext());
-                            databaseHandler.open();
                             memoryObject.texts = customTexts;
                             memoryObject.bitmaps = customBitmaps;
-                            databaseHandler.createMemory(memoryObject);
-                            databaseHandler.close();
-
 
 
                             MainActivity.memoryObjects.add(0, memoryObject);

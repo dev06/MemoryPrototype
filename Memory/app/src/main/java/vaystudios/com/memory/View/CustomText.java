@@ -1,11 +1,18 @@
 package vaystudios.com.memory.View;
 
+import android.animation.AnimatorSet;
+import android.animation.FloatEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.inputmethodservice.KeyboardView;
+import android.os.Handler;
 import android.text.InputType;
 import android.text.Layout;
 import android.util.AttributeSet;
@@ -18,15 +25,22 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import vaystudios.com.memory.CustomLayout.CustomColorLayout;
+import vaystudios.com.memory.MainActivity;
 import vaystudios.com.memory.R;
+import vaystudios.com.memory.Util.Gesture.DragListener;
+import vaystudios.com.memory.Util.Gesture.RotationListener;
+import vaystudios.com.memory.Util.Gesture.ScaleListener;
 import vaystudios.com.memory.Util.RotationGestureDetector;
 
 /**
@@ -35,86 +49,88 @@ import vaystudios.com.memory.Util.RotationGestureDetector;
 
 public class CustomText extends EditText {
 
-    private static CustomText instance;
+    private static boolean isEditting;
+    private static CustomText inEditText;
     private GestureDetector gestureDetector;
+    private Context context;
     private RotationGestureDetector rotationGestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private boolean interact;
-    private boolean move;
-    private float mScaleFactor = 1f;
-    private float mAngle;
-    private float px;
-    private float py;
-    private float sx, sy;
-    private float tx, ty;
-    private float scale = 50;
+    private View v;
     private float saveRot;
     private float saveX;
     private float saveY;
     private float saveScaleX;
     private float saveScaleY;
-    private View[] canvasUI;
-    private Paint paint;
     private Display display;
     private DisplayMetrics metrics = new DisplayMetrics();
-    private View parentView;
-    public CustomText(Context context, AttributeSet attrs, View parentView, boolean interact) {
+    private DragListener dragListener;
+    private ScaleListener scaleListener;
+    private RotationListener rotationListener;
+    private Window window;
+    private View decorView;
+    private CustomColorLayout customColorLayout;
+
+    public CustomText(Context context, AttributeSet attrs, View parentView, boolean interact)
+    {
         super(context, attrs);
         this.interact = interact;
-        this.parentView = parentView;
-        canvasUI= new View[2];
-        canvasUI[0] = parentView.findViewById(R.id.btn_canvasOption);
-        canvasUI[1] = parentView.findViewById(R.id.btn_canvasComplete);
-
-        Typeface face= Typeface.createFromAsset(context.getAssets(), "arial.ttf");
-        this.setTypeface(face);
-
-        setTextColor(Color.BLACK);
-
-
-        WindowManager wm = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
-        display = wm.getDefaultDisplay();
-        display.getMetrics(metrics);
-
-
-        setX(0);
-        setY(0);
-
-
-
-        setHint("New Text");
-        setTextSize(30);
-        Init();
-
-        setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
-        setSingleLine(false);
-        setHorizontallyScrolling(false);
-
+        this.context = context;
+        this.v = this;
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Init();
+            }
+        }, 100);
     }
 
 
     private void Init()
     {
+        dragListener = new DragListener(getContext());
+        scaleListener = new vaystudios.com.memory.Util.Gesture.ScaleListener(getContext(), this, 3.0f);
+        rotationListener = new RotationListener(getContext(), this);
+        gestureDetector = new GestureDetector(new GestureListener());
         setOnTouchListener(new TouchListener());
-        gestureDetector = new GestureDetector(getContext(), new GestureListener());
-        scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
-        rotationGestureDetector = new RotationGestureDetector(new RotationGestureListener(), this);
+        scaleGestureDetector = new ScaleGestureDetector(getContext(), scaleListener);
+        rotationGestureDetector = new RotationGestureDetector(rotationListener, this);
+        setOnEditorActionListener(new EditorAction());
 
-        setOnEditorActionListener(new OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if(i == EditorInfo.IME_ACTION_DONE)
-                {
-                    hideKeyboard();
-                    return true;
-                }
-                return false;
-            }
-        });
+        window = ((MainActivity)getContext()).getWindow();
+        decorView = window.getDecorView();
+        WindowManager wm = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
 
+        display = wm.getDefaultDisplay();
+        display.getMetrics(metrics);
+
+        Typeface face= Typeface.createFromAsset(context.getAssets(), "arial.ttf");
+        this.setTypeface(face);
         setBackground(null);
+        setTextSize(30);
+        setTextColor(Color.WHITE);
+        setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+        setSingleLine(false);
+        setHorizontallyScrolling(false);
+        saveX = metrics.widthPixels / 2 - getWidth() / 2;
+        showKeyboard();
 
     }
+
+
+    private void setDecorView()
+    {
+        if(decorView == null)
+            return;
+
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+    }
+
 
 
     public void setInteract(boolean interact)
@@ -130,71 +146,27 @@ public class CustomText extends EditText {
         {
             if(keyCode == KeyEvent.KEYCODE_BACK)
             {
-
                 hideKeyboard();
-                return true;
+                return isClickable();
             }
 
         }
-        return false;
+        return isClickable();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if(keyboardActive)
-            setX(metrics.widthPixels / 2 - getWidth() / 2);
+       // setBackgroundColor(Color.CYAN);
+         if(keyboardActive)
+         {
+             setX(metrics.widthPixels / 2 - getWidth() / 2);
+         }
 
     }
 
-
-
-    private float previousScale;
-    float newScale = 20.0f;
-    public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
-    {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-
-            if(interact)
-            {
-                mScaleFactor*= detector.getScaleFactor();
-                mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor ,3.0f));
-                newScale += -(previousScale - mScaleFactor) * 100.0f;
-                previousScale = mScaleFactor;
-
-
-
-                if(!keyboardActive)
-                {
-                    setScaleX(newScale / 100.0f);
-                    setScaleY(newScale / 100.0f);
-                }
-
-                invalidate();
-            }
-
-
-            return true;
-        }
-
-    }
-
-
-    public class RotationGestureListener implements RotationGestureDetector.OnRotationGestureListener
-    {
-
-        @Override
-        public void onRotation(RotationGestureDetector rotationDetector) {
-            float angle = rotationDetector.getAngle();
-            if(!keyboardActive && interact)
-            {
-                mAngle = angle;
-                setRotation(mAngle);
-            }
-        }
-    }
+    private long keyboardDelay = 200;
 
     private void showKeyboard()
     {
@@ -204,30 +176,47 @@ public class CustomText extends EditText {
             requestFocus();
             if(isFocused())
             {
+
                 saveX = getX();
                 saveY = getY();
 
-                saveRot = mAngle;
+                saveRot = getRotation();
                 saveScaleX = getScaleX();
                 saveScaleY = getScaleY();
-                setRotation(0);
-                setScaleX(1.0f);
-                setScaleY(1.0f);
 
-                setY(500);
+                ObjectAnimator scaleDown = ObjectAnimator.ofPropertyValuesHolder(this,
+                        PropertyValuesHolder.ofFloat("scaleX", 1.0f),
+                        PropertyValuesHolder.ofFloat("scaleY",  1.0f),
+                        PropertyValuesHolder.ofFloat("translationY", 500.0f),
+                        PropertyValuesHolder.ofFloat("translationX", metrics.widthPixels / 2 - getWidth() / 2),
+                        PropertyValuesHolder.ofFloat("rotation", Math.abs(getRotation()) > 180 ? 360 : 0));
+                scaleDown.setDuration(keyboardDelay);
+                scaleDown.start();
+
                 setCursorVisible(true);
-                InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
-
                 setSelection(getText().length());
-                keyboardActive = true;
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT);
+                        keyboardActive = true;
+                    }
+                },keyboardDelay);
+
+                isEditting = true;
+                inEditText = this;
+
+                if(customColorLayout == null)
+                {
+                    ViewGroup viewGroup = (ViewGroup)getParent();
+                    customColorLayout = (CustomColorLayout)viewGroup.findViewById(R.id.canvasEdit_colorLayout);
+                }
+
+                   customColorLayout.setVisibility(VISIBLE);
             }
-
-
         }
-
-
-
     }
 
     private void hideKeyboard()
@@ -237,16 +226,37 @@ public class CustomText extends EditText {
             InputMethodManager inputMethodManager = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             setCursorVisible(false);
-            keyboardActive = false;
-            setRotation(saveRot);
-            setSelection(0);
-            setX(saveX);
-            setY(saveY);
-            setScaleX(saveScaleX);
-            setScaleY(saveScaleY);
-            this.clearFocus();
-        }
 
+            setSelection(0);
+
+
+
+
+            ObjectAnimator scaleDown = ObjectAnimator.ofPropertyValuesHolder(this,
+                    PropertyValuesHolder.ofFloat("scaleX", saveScaleX),
+                    PropertyValuesHolder.ofFloat("scaleY", saveScaleY),
+                    PropertyValuesHolder.ofFloat("translationX", saveX),
+                    PropertyValuesHolder.ofFloat("translationY", saveY),
+                    PropertyValuesHolder.ofFloat("rotation", saveRot));
+            scaleDown.setDuration(keyboardDelay);
+            scaleDown.start();
+
+            keyboardActive = false;
+            clearFocus();
+            setDecorView();
+            isEditting = false;
+            inEditText = null;
+
+            if(customColorLayout != null)
+            {
+                customColorLayout.setVisibility(INVISIBLE);
+            }
+
+            if(getText().length() <=0)
+            {
+                setVisibility(View.GONE);
+            }
+        }
     }
 
 
@@ -259,87 +269,92 @@ public class CustomText extends EditText {
         public boolean onTouch(View view, MotionEvent motionEvent) {
 
             gestureDetector.onTouchEvent(motionEvent);
-            scaleGestureDetector.onTouchEvent(motionEvent);
-            rotationGestureDetector.onTouchEvent(motionEvent) ;
-
-            if(interact)
+            if(keyboardActive == false)
             {
-                switch(motionEvent.getAction())
-                {
-                    case MotionEvent.ACTION_DOWN:
-                    {
-
-
-                        move = true;
-                        sx = getX();
-                        sy = getY();
-                        px = motionEvent.getRawX();
-                        py = motionEvent.getRawY();
-                        if(instance == null)
-                        {
-                            instance = (CustomText) view;
-                        }
-
-                        break;
-                    }
-
-                    case MotionEvent.ACTION_MOVE:
-                    {
-                        if(move && instance == view)
-                        {
-                            float x_cord = motionEvent.getRawX() ;
-                            float y_cord = motionEvent.getRawY();
-
-                            float dx = x_cord - px;
-                            float dy = y_cord - py;
-
-                            float vx = sx + dx;
-                            float vy = sy + dy;
-                            tx = vx;
-                            ty = vy;
-                            if(!keyboardActive)
-                                setX(tx);
-                            setY(ty);
-                            instance = (CustomText) view;
-
-                            hideCanvasUI();
-
-                        }
-
-                        break;
-
-                    }
-
-                    case MotionEvent.ACTION_POINTER_DOWN:
-                    {
-                        move = true;
-                        sx = getX();
-                        sy = getY();
-                        px = motionEvent.getRawX();
-                        py = motionEvent.getRawY();
-                        break;
-                    }
-
-                    case MotionEvent.ACTION_POINTER_UP:
-                    {
-                        move = false;
-                        break;
-                    }
-                    case MotionEvent.ACTION_UP:
-                    {
-
-                        move = false;
-                        if(instance != null && instance == view)
-                        {
-                            instance = null;
-                        }
-                        showCanvasUI();
-                        break;
-                    }
-                }
+                dragListener.onTouch(view, motionEvent);
+                rotationGestureDetector.onTouchEvent(motionEvent) ;
+                scaleGestureDetector.onTouchEvent(motionEvent);
             }
 
-            return instance == view;
+
+//            if(interact)
+//            {
+//                switch(motionEvent.getAction())
+//                {
+//                    case MotionEvent.ACTION_DOWN:
+//                    {
+//
+//
+//                        move = true;
+//                        sx = getX();
+//                        sy = getY();
+//                        px = motionEvent.getRawX();
+//                        py = motionEvent.getRawY();
+//                        if(instance == null)
+//                        {
+//                            instance = (CustomText) view;
+//                        }
+//
+//                        break;
+//                    }
+//
+//                    case MotionEvent.ACTION_MOVE:
+//                    {
+//                        if(move && instance == view)
+//                        {
+//                            float x_cord = motionEvent.getRawX() ;
+//                            float y_cord = motionEvent.getRawY();
+//
+//                            float dx = x_cord - px;
+//                            float dy = y_cord - py;
+//
+//                            float vx = sx + dx;
+//                            float vy = sy + dy;
+//                            tx = vx;
+//                            ty = vy;
+//                            if(!keyboardActive)
+//                                setX(tx);
+//                            setY(ty);
+//                            instance = (CustomText) view;
+//
+//                            hideCanvasUI();
+//
+//                        }
+//
+//                        break;
+//
+//                    }
+//
+//                    case MotionEvent.ACTION_POINTER_DOWN:
+//                    {
+//                        move = true;
+//                        sx = getX();
+//                        sy = getY();
+//                        px = motionEvent.getRawX();
+//                        py = motionEvent.getRawY();
+//                        break;
+//                    }
+//
+//                    case MotionEvent.ACTION_POINTER_UP:
+//                    {
+//                        move = false;
+//                        break;
+//                    }
+//                    case MotionEvent.ACTION_UP:
+//                    {
+//
+//                        move = false;
+//                        if(instance != null && instance == view)
+//                        {
+//                            instance = null;
+//                        }
+//                        showCanvasUI();
+//                        break;
+//                    }
+//                }
+//            }
+
+            return view.isClickable();
         }
     }
 
@@ -354,12 +369,10 @@ public class CustomText extends EditText {
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            if(!keyboardActive)
+            if(!keyboardActive && !isEditting)
             {
                 showKeyboard();
-
             }
-
 
             return true;
         }
@@ -367,27 +380,41 @@ public class CustomText extends EditText {
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
+
             if(keyboardActive)
             {
                 hideKeyboard();
             }
 
-            return true;
+            return isClickable();
         }
     }
 
-    private void hideCanvasUI()
+    public static CustomText GetEditText()
     {
-        canvasUI[0].setVisibility(View.INVISIBLE);
-        canvasUI[1].setVisibility(View.INVISIBLE);
-
+        return inEditText;
     }
 
-    private void showCanvasUI()
+    public void SetTextColor(int color)
     {
-        canvasUI[0].setVisibility(View.VISIBLE);
-        canvasUI[1].setVisibility(View.VISIBLE);
+        setTextColor(color);
+    }
 
+
+
+
+    private class EditorAction implements  OnEditorActionListener
+    {
+        @Override
+        public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+
+            if(i == EditorInfo.IME_ACTION_DONE)
+            {
+                hideKeyboard();
+                return true;
+            }
+            return false;
+        }
 
 
     }

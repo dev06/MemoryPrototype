@@ -47,7 +47,7 @@ public class MemoryObjectAdapter extends ArrayAdapter<MemoryObject> {
             holder = (ViewHolder)convertView.getTag();
         }
 
-        if(holder != null)
+        if(holder != null && memoryObject != null)
         {
             holder.title.setText(memoryObject.title);
         }

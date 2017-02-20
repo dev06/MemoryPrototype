@@ -12,8 +12,6 @@ import android.widget.Toast;
 
 import vaystudios.com.memory.Object.MemoryObject;
 import vaystudios.com.memory.R;
-import vaystudios.com.memory.View.CanvasView;
-import vaystudios.com.memory.View.CustomBitmap;
 
 /**
  * Created by Devan on 2/13/2017.
@@ -34,6 +32,7 @@ public class CanvasViewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.canvas_view_fragment_layout, container, false);
         relativeLayout = (RelativeLayout)view.findViewById(R.id.canvas_view_layout);
+
         if(memoryObject != null)
         {
             relativeLayout.removeAllViews();
@@ -45,13 +44,8 @@ public class CanvasViewFragment extends Fragment {
                     memoryObject.texts.get(i).setInteract(false);
                     relativeLayout.addView(memoryObject.texts.get(i));
                 }
-
             }
 
-
-            CustomBitmap customBitmap = new CustomBitmap(getActivity(), null, memoryObject.myBitmap, relativeLayout, false);
-            relativeLayout.addView(customBitmap);
-            Log.d("Test", memoryObject.myBitmap + "");
             if(memoryObject.bitmaps != null)
             {
                 for(int i = 0;i < memoryObject.bitmaps.size(); i++)
@@ -60,13 +54,13 @@ public class CanvasViewFragment extends Fragment {
                     relativeLayout.addView(memoryObject.bitmaps.get(i));
                 }
             }
-
         }
         return view;
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroyView()
+    {
         super.onDestroyView();
         Toast.makeText(getContext(), "View Destroyed", Toast.LENGTH_SHORT).show();
         relativeLayout.removeAllViews();

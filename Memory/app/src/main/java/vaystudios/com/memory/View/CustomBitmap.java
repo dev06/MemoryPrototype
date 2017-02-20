@@ -1,5 +1,7 @@
 package vaystudios.com.memory.View;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -16,6 +18,9 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -24,6 +29,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import vaystudios.com.memory.R;
+import vaystudios.com.memory.Util.Gesture.DragListener;
+import vaystudios.com.memory.Util.Gesture.RotationListener;
+import vaystudios.com.memory.Util.Gesture.ScaleListener;
 import vaystudios.com.memory.Util.RotationGestureDetector;
 
 /**
@@ -33,87 +41,49 @@ import vaystudios.com.memory.Util.RotationGestureDetector;
 public class CustomBitmap extends ImageView
 {
 
-
-    public Bitmap b;
-    private static CustomBitmap instance;
+    private static float ScaleLimit = 3.0f;
     private boolean interact;
-    private View view;
-    private View parentView;
-    private Activity c;
     private Bitmap bitmap;
     private Paint paint;
-
+    private View view;
+    private DragListener dragListener;
+    private ScaleListener scaleListener;
+    private RotationListener rotationListener;
     private GestureDetector gestureDetector;
+
     private RotationGestureDetector rotationGestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
 
-    private boolean move;
-    private float mScaleFactor = 1f;
-    private float mAngle;
-    private float px;
-    private float py;
-    private float sx, sy;
-    private float tx, ty;
-    private View[] canvasUI;
+
+
+    public CustomBitmap(Activity context, AttributeSet attrs, Bitmap bitmap, View parentView, boolean interact) {
+        super(context, attrs, 0);
+        this.bitmap = bitmap;
+        this.interact = interact;
+        this.view = this;
+        Init();
+    }
 
 
     private void Init()
     {
-        view = (View)this;
-
-        setOnTouchListener(new TouchListener());
-
-        gestureDetector = new GestureDetector(getContext(), new GestureListener());
-        scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
-        rotationGestureDetector = new RotationGestureDetector(new RotationGestureListener(), this);
-        setElevation(10);
-
-
-
-        setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-            @Override
-            public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-
-                if(interact)
-                {
-                    setVisibility(View.GONE);
-                }
-            }
-        });
-
-   }
-
-    public CustomBitmap(Activity context, AttributeSet attrs, Bitmap bitmap, View parentView, boolean interact) {
-        super(context, attrs, 0);
-        Init();
-        this.c = context;
-        this.parentView = parentView;
-        this.bitmap = bitmap;
-        this.interact = interact;
         paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
-        canvasUI = new View[2];
-        canvasUI[0] = parentView.findViewById(R.id.btn_canvasOption);
-        canvasUI[1] = parentView.findViewById(R.id.btn_canvasComplete);
+        dragListener = new DragListener(getContext());
+        scaleListener = new ScaleListener(getContext(), this, ScaleLimit);
+        rotationListener = new RotationListener(getContext(), this);
+        scaleGestureDetector = new ScaleGestureDetector(getContext(), scaleListener);
+        rotationGestureDetector = new RotationGestureDetector(rotationListener, this);
+        gestureDetector = new GestureDetector(getContext(), new GestureListener());
+        setOnTouchListener(new TouchListener());
+        setElevation(10);
         setImageDrawable(easyRound(bitmap, 50));
         setZ(-1);
+
+
+
+
     }
-
-
-    public byte[] ToBytes()
-    {
-        byte[] bytes = null;
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream);
-        bytes = stream.toByteArray();
-        return bytes;
-    }
-
-    public void setInteract(boolean interact)
-    {
-        this.interact = interact;
-    }
-
 
 
     public Drawable easyRound(Bitmap source, int pixels)
@@ -126,51 +96,9 @@ public class CustomBitmap extends ImageView
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
-
+    protected void onDraw(Canvas canvas)
+    {
         super.onDraw(canvas);
-
-        if(interact)
-        {
-            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)getLayoutParams();
-            layoutParams.width = (int)(bitmap.getWidth() * mScaleFactor);
-            layoutParams.height = (int)(bitmap.getHeight() * mScaleFactor);
-            setLayoutParams(layoutParams);
-        }
-
-
-
-    }
-
-
-    public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
-    {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-
-            if(interact)
-            {
-                mScaleFactor*= detector.getScaleFactor();
-                mScaleFactor = Math.max(0.5f, Math.min(mScaleFactor ,5.0f));
-                invalidate();
-            }
-            return true;
-        }
-    }
-
-
-    public class RotationGestureListener implements RotationGestureDetector.OnRotationGestureListener
-    {
-
-        @Override
-        public void onRotation(RotationGestureDetector rotationDetector) {
-            if(interact)
-            {
-                float angle = rotationDetector.getAngle();
-                mAngle = angle;
-                setRotation(mAngle);
-            }
-        }
     }
 
 
@@ -179,134 +107,29 @@ public class CustomBitmap extends ImageView
 
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-
-            gestureDetector.onTouchEvent(motionEvent);
+            dragListener.onTouch(view, motionEvent);
             scaleGestureDetector.onTouchEvent(motionEvent);
-            rotationGestureDetector.onTouchEvent(motionEvent) ;
-
-
-            if(interact)
-            {
-                switch(motionEvent.getAction())
-                {
-                    case MotionEvent.ACTION_DOWN:
-                    {
-                        move = true;
-                        sx = getX();
-                        sy = getY();
-                        px = motionEvent.getRawX();
-                        py = motionEvent.getRawY();
-                        if(instance == null)
-                        {
-                            instance = (CustomBitmap)view;
-                        }
-
-
-                        hideCanvasUI();
-                        break;
-                    }
-
-                    case MotionEvent.ACTION_MOVE:
-                    {
-                        if(move && instance == view)
-                        {
-                            float x_cord = motionEvent.getRawX() ;
-                            float y_cord = motionEvent.getRawY();
-
-                            float dx = x_cord - px;
-                            float dy = y_cord - py;
-
-                            float vx = sx + dx;
-                            float vy = sy + dy;
-                            tx = vx;
-                            ty = vy;
-
-                            setX(tx);
-                            setY(ty);
-                            instance = (CustomBitmap)view;
-                            hideCanvasUI();
-                        }
-
-                        break;
-
-                    }
-
-                    case MotionEvent.ACTION_POINTER_DOWN:
-                    {
-                        move = true;
-                        sx = getX();
-                        sy = getY();
-                        px = motionEvent.getRawX();
-                        py = motionEvent.getRawY();
-
-                        break;
-                    }
-
-                    case MotionEvent.ACTION_POINTER_UP:
-                    {
-                        move = false;
-
-                        break;
-                    }
-                    case MotionEvent.ACTION_UP:
-                    {
-                        move = false;
-                        if(instance != null && instance == view)
-                        {
-                            instance = null;
-
-                        }
-                        showCanvasUI();
-                        break;
-                    }
-                }
-            }
-            return true;
+            rotationGestureDetector.onTouchEvent(motionEvent);
+            gestureDetector.onTouchEvent(motionEvent);
+            return view.isClickable();
         }
     }
 
-
-    private class GestureListener extends GestureDetector.SimpleOnGestureListener
+    public void setInteract(boolean interact)
     {
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return false;
-        }
+        this.interact = interact;
+    }
 
+
+    public class GestureListener extends  GestureDetector.SimpleOnGestureListener
+    {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-
-            view.showContextMenu();
+            ViewGroup viewGroup = (ViewGroup)getParent();
+            viewGroup.removeView(view);
             return true;
         }
-
-
     }
-
-
-    @Override
-    protected void onCreateContextMenu(ContextMenu menu) {
-        super.onCreateContextMenu(menu);
-
-    }
-
-
-    private void hideCanvasUI()
-    {
-        canvasUI[0].setVisibility(View.INVISIBLE);
-        canvasUI[1].setVisibility(View.INVISIBLE);
-
-    }
-
-    private void showCanvasUI()
-    {
-        canvasUI[0].setVisibility(View.VISIBLE);
-        canvasUI[1].setVisibility(View.VISIBLE);
-
-
-    }
-
-
 
 
 }
