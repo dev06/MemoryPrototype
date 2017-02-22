@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import vaystudios.com.memory.View.CustomBitmap;
+
 /**
  * Created by Devan on 2/18/2017.
  */
@@ -37,13 +39,37 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
 
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
-
         scaleFactor *= detector.getScaleFactor();
-        scaleFactor = Math.max(.05f, Math.min(scaleFactor, scaleLimit / divisor));
-        newScale += (scaleFactor - previousScale);
-        updatedScale+=(newScale - pUpdated);
-        view.setScaleX(updatedScale * divisor);
-        view.setScaleY(updatedScale * divisor);
+
+
+
+        if(view instanceof CustomBitmap)
+        {
+            CustomBitmap customBitmap = (CustomBitmap)view;
+            if(customBitmap.inScale == false)
+            {
+                scaleFactor = Math.max(.05f, Math.min(scaleFactor, customBitmap.getWidth()));
+                newScale += (scaleFactor - previousScale);
+                updatedScale+=(newScale - pUpdated);
+                customBitmap.setImageDrawable(customBitmap.easyRound(customBitmap.bitmap, (int)(scaleFactor)));
+                Log.d("Vay", (int)scaleFactor + "");
+            }else
+            {
+                scaleFactor = Math.max(.05f, Math.min(scaleFactor, scaleLimit / divisor));
+                newScale += (scaleFactor - previousScale);
+                updatedScale+=(newScale - pUpdated);
+                view.setScaleX(updatedScale * divisor);
+                view.setScaleY(updatedScale * divisor);
+            }
+        }
+        else
+        {
+            scaleFactor = Math.max(.05f, Math.min(scaleFactor, scaleLimit / divisor));
+            newScale += (scaleFactor - previousScale);
+            updatedScale+=(newScale - pUpdated);
+            view.setScaleX(updatedScale * divisor);
+            view.setScaleY(updatedScale * divisor);
+        }
         previousScale = scaleFactor;
         pUpdated = newScale;
         view.invalidate();

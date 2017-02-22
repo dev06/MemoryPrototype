@@ -55,5 +55,21 @@
         </vaystudios.com.memory.CustomLayout.CustomColorLayout>
 
 
+        <vaystudios.com.memory.CustomLayout.CustomBitmapEditTray
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/canvasEdit_bitmapTray">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:id="@+id/canvasEdit_bitmapLinearLayout">
+
+            </LinearLayout>
+
+        </vaystudios.com.memory.CustomLayout.CustomBitmapEditTray>
+
+
 </RelativeLayout>
 
