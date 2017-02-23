@@ -1,7 +1,5 @@
 package vaystudios.com.memory.View;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,26 +8,14 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.transition.Visibility;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-
-import vaystudios.com.memory.CustomLayout.CustomBitmapEditTray;
-import vaystudios.com.memory.CustomLayout.CustomColorLayout;
 import vaystudios.com.memory.R;
 import vaystudios.com.memory.Util.Gesture.DragListener;
 import vaystudios.com.memory.Util.Gesture.RotationListener;
@@ -52,7 +38,6 @@ public class CustomBitmap extends ImageView
     private ScaleListener scaleListener;
     private RotationListener rotationListener;
     private GestureDetector gestureDetector;
-    private CustomBitmapEditTray customBitmapEditTray;
     private RotationGestureDetector rotationGestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     public boolean inScale;
@@ -128,25 +113,13 @@ public class CustomBitmap extends ImageView
     public class GestureListener extends  GestureDetector.SimpleOnGestureListener
     {
 
-//        @Override
-//        public boolean onSingleTapUp(MotionEvent e) {
-//            if(customBitmapEditTray != null)
-//            {
-//                customBitmapEditTray.setVisibility(View.INVISIBLE);
-//            }
-//            return true;
-//        }
+
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            if(customBitmapEditTray == null)
-            {
-                ViewGroup viewGroup = (ViewGroup)getParent();
-                customBitmapEditTray = (CustomBitmapEditTray) viewGroup.findViewById(R.id.canvasEdit_bitmapTray);
-            }
 
-            inScale = !inScale;
-            customBitmapEditTray.setVisibility(customBitmapEditTray.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+            ViewGroup viewGroup = (ViewGroup)getParent();
+            viewGroup.removeView(view);
             return true;
         }
     }
