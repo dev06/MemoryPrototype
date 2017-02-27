@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -92,9 +93,6 @@ public class JSONDecoder
                         MemoryObject memory = new MemoryObject();
 
                         memory.setTitle(memory_object.getString(memory_object.names().getString(0)));
-                        Log.d("Object", "Title -> " + memory_object.names().getString(0));
-                        Log.d("Object", "Texts -> " + memory_object.names().getString(1));
-                        Log.d("Object", "Bitmaps -> " + memory_object.names().getString(2));
 
                         ArrayList<CustomText> customTexts = new ArrayList<>();
                         JSONObject texts = memory_object.getJSONObject("texts");
@@ -106,7 +104,6 @@ public class JSONDecoder
                             {
                                 String extractedText = texts.getString(texts.names().getString(tx));
                                 customTexts.add(ParseCustomText(extractedText));
-                                Log.d("Object", "SubTexts -> " + texts.getString(texts.names().getString(tx)) + "");
                             }
 
                         }
@@ -134,6 +131,7 @@ public class JSONDecoder
                         if(memoryListFragment != null)
                         {
                             memoryListFragment.UpdateMemoryList();
+                            Toast.makeText(context, "Refreshed!", Toast.LENGTH_SHORT).show();
                         }
 
 

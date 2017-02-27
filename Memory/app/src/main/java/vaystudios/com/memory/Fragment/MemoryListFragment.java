@@ -98,7 +98,7 @@ public class MemoryListFragment extends Fragment
             @Override
             public void onClick(View v) {
                 UpdateMemoryList();
-                Toast.makeText(getContext(), "Refreshed!", Toast.LENGTH_SHORT).show();
+
             }
         });
 

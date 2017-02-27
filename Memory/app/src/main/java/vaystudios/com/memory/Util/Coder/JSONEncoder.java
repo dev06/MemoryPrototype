@@ -47,6 +47,11 @@ public class JSONEncoder
         this.memoryToSave = memoryToSave;
         this.texts = memoryToSave.texts;
         this.bitmaps = memoryToSave.bitmaps;
+        try {
+            Log.d("JSON", encodeMemoryToJson(memoryToSave));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -54,6 +59,30 @@ public class JSONEncoder
     {
         this.activity = activity;
         this.context = context;
+    }
+
+
+    private String encodeMemoryToJson(CanvasEditFragment.MemoryToSave memoryToSave) throws JSONException {
+        JSONObject decodeString = new JSONObject();
+        long suffix = 0;
+        if(JSONDecoder.JSON_DECODE_STRING.length() > 0)
+        {
+            decodeString = new JSONObject(JSONDecoder.JSON_DECODE_STRING);
+            suffix = decodeString.length() + 1;
+            Log.d("JSON", "LENGTH -> " + decodeString.length());
+
+        }
+
+
+        JSONObject root = new JSONObject();
+        JSONObject sub = new JSONObject();
+        sub.put("title", memoryToSave.title);
+        sub.put("texts", memoryToSave.texts);
+        sub.put("bitmaps", memoryToSave.bitmaps);
+        root.put("memory_" + suffix, sub);
+        String cut = root.toString().substring(1, root.toString().length() - 1);
+
+        return cut;
     }
 
 
