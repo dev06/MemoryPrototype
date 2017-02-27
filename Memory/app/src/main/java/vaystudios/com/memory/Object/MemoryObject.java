@@ -20,6 +20,11 @@ public class MemoryObject
     public ArrayList<CustomBitmap> bitmaps;
     public ArrayList<CustomText> texts;
 
+    public MemoryObject()
+    {
+
+    }
+
     public MemoryObject(int id, String title)
     {
         this.id = id;
@@ -35,6 +40,46 @@ public class MemoryObject
     }
 
 
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Bitmap getMyBitmap() {
+        return myBitmap;
+    }
+
+    public void setMyBitmap(Bitmap myBitmap) {
+        this.myBitmap = myBitmap;
+    }
+
+    public ArrayList<CustomBitmap> getBitmaps() {
+        return bitmaps;
+    }
+
+    public void setBitmaps(ArrayList<CustomBitmap> bitmaps) {
+        this.bitmaps = bitmaps;
+    }
+
+    public ArrayList<CustomText> getTexts() {
+        return texts;
+    }
+
+    public void setTexts(ArrayList<CustomText> texts) {
+        this.texts = texts;
+    }
 
 
 

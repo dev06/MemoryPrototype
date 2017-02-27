@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import vaystudios.com.memory.Object.MemoryObject;
 import vaystudios.com.memory.R;
+import vaystudios.com.memory.Util.Coder.JSONDecoder;
 
 /**
  * Created by Devan on 2/13/2017.
@@ -37,6 +38,7 @@ public class CanvasViewFragment extends Fragment {
         {
             relativeLayout.removeAllViews();
 
+
             if(memoryObject.texts != null)
             {
                 for(int i = 0;i < memoryObject.texts.size(); i++)
@@ -45,6 +47,7 @@ public class CanvasViewFragment extends Fragment {
                     relativeLayout.addView(memoryObject.texts.get(i));
                 }
             }
+
 
             if(memoryObject.bitmaps != null)
             {
@@ -62,7 +65,6 @@ public class CanvasViewFragment extends Fragment {
     public void onDestroyView()
     {
         super.onDestroyView();
-        Toast.makeText(getContext(), "View Destroyed", Toast.LENGTH_SHORT).show();
         relativeLayout.removeAllViews();
     }
 

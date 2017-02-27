@@ -9,6 +9,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import vaystudios.com.memory.View.CustomBitmap;
+import vaystudios.com.memory.View.CustomText;
 
 /**
  * Created by Devan on 2/18/2017.
@@ -30,10 +31,30 @@ public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureList
         this.scaleLimit = scaleLimit;
         this.context = context;
         this.view = view;
-        newScale += (scaleFactor - previousScale);
-        view.setScaleX(newScale * divisor);
-        view.setScaleY(newScale * divisor);
-        previousScale = scaleFactor;
+
+        if(view instanceof CustomText)
+        {
+            CustomText text =(CustomText)view;
+            if (text.interact)
+            {
+                newScale += (scaleFactor - previousScale);
+                view.setScaleX(newScale * divisor);
+                view.setScaleY(newScale * divisor);
+                previousScale = scaleFactor;
+            }
+        }
+
+        if(view instanceof  CustomBitmap)
+        {
+            CustomBitmap bitmap = (CustomBitmap)view;
+            if(bitmap.interact)
+            {
+                newScale += (scaleFactor - previousScale);
+                view.setScaleX(newScale * divisor);
+                view.setScaleY(newScale * divisor);
+                previousScale = scaleFactor;
+            }
+        }
     }
 
 

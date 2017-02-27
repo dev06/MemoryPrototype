@@ -1,21 +1,28 @@
 package vaystudios.com.memory;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import vaystudios.com.memory.Fragment.CanvasViewFragment;
 import vaystudios.com.memory.Fragment.MemoryListFragment;
 import vaystudios.com.memory.Object.MemoryObject;
+import vaystudios.com.memory.Object.User;
+import vaystudios.com.memory.Util.Coder.JSONDecoder;
 import vaystudios.com.memory.View.CustomBitmap;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     public static int REQUET_IMAGE_CROP = 1;
     public static int REQUET_GALLERY_IMAGE_CROP = 2;
 
-    public static int textColor;
+    public static User loggedUser;
     public static ArrayList<MemoryObject> memoryObjects = new ArrayList<MemoryObject>();
 
     @Override
@@ -42,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
             }
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
         }
+
+        CreateLoggedUser(getIntent());
 
         MemoryListFragment memoryListFragment = new MemoryListFragment();
         getFragmentManager().beginTransaction().add(R.id.activity_main,memoryListFragment).commit();
@@ -78,14 +87,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    private void CreateLoggedUser(Intent intent)
+    {
+        loggedUser = new User();
+        loggedUser.setName(intent.getStringExtra("name"));
+        loggedUser.setUser_id(intent.getStringExtra("user_id"));
+        loggedUser.setUsername(intent.getStringExtra("username"));
+  }
+
+
     @Override
     protected void onPause() {
         super.onPause();
     }
 
 
+    @Override
+    public void onBackPressed() {
 
-
-
-
+        CanvasViewFragment myFragment = (CanvasViewFragment)getFragmentManager().findFragmentByTag("CANVAS_VIEW_FRAGMENT");
+        if (myFragment != null && myFragment.isVisible()) {
+            super.onBackPressed();
+        }
+    }
 }

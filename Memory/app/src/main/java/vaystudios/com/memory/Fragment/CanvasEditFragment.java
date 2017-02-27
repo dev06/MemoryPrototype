@@ -29,19 +29,19 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import org.json.JSONException;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Random;
 
-import vaystudios.com.memory.Database.DatabaseHandler;
 import vaystudios.com.memory.IO.DataSaver;
 import vaystudios.com.memory.MainActivity;
-import vaystudios.com.memory.Object.MemoryObject;
 import vaystudios.com.memory.R;
-import vaystudios.com.memory.View.CustomArt;
+import vaystudios.com.memory.Util.Coder.JSONDecoder;
+import vaystudios.com.memory.Util.Coder.JSONEncoder;
 import vaystudios.com.memory.View.CustomBitmap;
 import vaystudios.com.memory.View.CustomText;
 
@@ -53,6 +53,16 @@ import static android.app.Activity.RESULT_OK;
 
 public class CanvasEditFragment extends Fragment
 {
+
+    public class MemoryToSave
+    {
+        public String title;
+        public ArrayList<CustomBitmap> bitmaps;
+        public ArrayList<CustomText> texts;
+
+        public MemoryToSave(){}
+    }
+
     private ArrayList<CustomText> customTexts = new ArrayList<CustomText>();
     private ArrayList<CustomBitmap> customBitmaps = new ArrayList<CustomBitmap>();
     private DataSaver dataSaver;
@@ -79,17 +89,17 @@ public class CanvasEditFragment extends Fragment
         relativeLayout.setFocusableInTouchMode(true);
         this.view = view;
 
-        for(int i =0;i < 3; i++)
-        {
-            CustomBitmap customBitmap = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher), relativeLayout, true);
-            relativeLayout.addView(customBitmap);
-        }
+//        for(int i =0;i < 3; i++)
+//        {
+//            CustomBitmap customBitmap = new CustomBitmap(getActivity(),null, BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher), relativeLayout, true);
+//            relativeLayout.addView(customBitmap);
+//        }
 
 
 
         // user finishes designing the canvas and wants to finish it up.
         canvasCompleteButton.setOnClickListener(new View.OnClickListener() {
-            MemoryObject memoryObject = new MemoryObject(new Random().nextInt(),"New Memory!");
+
 
             @Override
             public void onClick(View v) {
@@ -108,18 +118,34 @@ public class CanvasEditFragment extends Fragment
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if(editText.getText().length() > 0)
                         {
-                            memoryObject.title = editText.getText().toString();
+
+                            ViewGroup viewGroup = (ViewGroup)getView();
+                            for(int rl =0; rl < relativeLayout.getChildCount(); rl++)
+                            {
+                                if(relativeLayout.getChildAt(rl) instanceof  CustomBitmap)
+                                {
+                                    customBitmaps.add((CustomBitmap)relativeLayout.getChildAt(rl));
+                                }
+                            }
+
+                            MemoryToSave memoryToSave = new MemoryToSave();
+                            memoryToSave.title = editText.getText().toString();
+                            memoryToSave.bitmaps = customBitmaps;
+                            memoryToSave.texts = customTexts;
 
 
-                            memoryObject.texts = customTexts;
-                            memoryObject.bitmaps = customBitmaps;
+                            JSONEncoder encoder = new JSONEncoder(getActivity(), getContext(), memoryToSave);
+                            try {
+                                encoder.encode();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
 
-
-                            MainActivity.memoryObjects.add(0, memoryObject);
                             relativeLayout.removeAllViews();
-
                             MemoryListFragment memoryListFragment = new MemoryListFragment();
-                            getFragmentManager().beginTransaction().replace(R.id.activity_main, memoryListFragment).commit();
+                            getFragmentManager().beginTransaction().replace(R.id.activity_main, memoryListFragment , "MEMORY_LIST_FRAGMENT").commit();
+                            Toast.makeText(getContext(), "Uploading...", Toast.LENGTH_SHORT).show();
+
                         }else
                         {
                             Toast.makeText(getContext(), "Enter a Memory Title!", Toast.LENGTH_SHORT).show();
@@ -265,6 +291,7 @@ public class CanvasEditFragment extends Fragment
             if(getActivity().checkCallingOrSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED)
             {
+
                 Uri newUri = data.getData();
 
                 try {
@@ -275,7 +302,6 @@ public class CanvasEditFragment extends Fragment
                     if(bitmap != null)
                     {
                         CustomBitmap customBitmap = new CustomBitmap(getActivity(), null, bitmap, view, true);
-                        customBitmaps.add(customBitmap);
                         relativeLayout.addView(customBitmap);
 
                     }

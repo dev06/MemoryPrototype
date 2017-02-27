@@ -41,6 +41,7 @@ import vaystudios.com.memory.R;
 import vaystudios.com.memory.Util.Gesture.DragListener;
 import vaystudios.com.memory.Util.Gesture.RotationListener;
 import vaystudios.com.memory.Util.Gesture.ScaleListener;
+import vaystudios.com.memory.Util.MiscIO.Transform;
 import vaystudios.com.memory.Util.RotationGestureDetector;
 
 /**
@@ -49,14 +50,18 @@ import vaystudios.com.memory.Util.RotationGestureDetector;
 
 public class CustomText extends EditText {
 
+
+    public Transform transform;
+    public String text;
     private static boolean isEditting;
     private static CustomText inEditText;
     private GestureDetector gestureDetector;
     private Context context;
     private RotationGestureDetector rotationGestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
-    private boolean interact;
+    public boolean interact;
     private View v;
+    private long keyboardDelay = 200;
     private float saveRot;
     private float saveX;
     private float saveY;
@@ -77,6 +82,23 @@ public class CustomText extends EditText {
         this.interact = interact;
         this.context = context;
         this.v = this;
+        SetTransfrom(new Transform());
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Init();
+            }
+        }, 100);
+    }
+
+    public CustomText(Context context, AttributeSet attrs, String text, Transform transform, boolean interact)
+    {
+        super(context, attrs);
+        this.interact = interact;
+        this.context = context;
+        this.v = this;
+        this.text = text;
+        SetTransfrom(transform);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -88,6 +110,8 @@ public class CustomText extends EditText {
 
     private void Init()
     {
+
+        setText(text);
         dragListener = new DragListener(getContext());
         scaleListener = new vaystudios.com.memory.Util.Gesture.ScaleListener(getContext(), this, 3.0f);
         rotationListener = new RotationListener(getContext(), this);
@@ -97,7 +121,7 @@ public class CustomText extends EditText {
         rotationGestureDetector = new RotationGestureDetector(rotationListener, this);
         setOnEditorActionListener(new EditorAction());
 
-        window = ((MainActivity)getContext()).getWindow();
+        window = ((MainActivity)context).getWindow();
         decorView = window.getDecorView();
         WindowManager wm = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
 
@@ -116,6 +140,33 @@ public class CustomText extends EditText {
         showKeyboard();
 
     }
+
+
+    private void SetTransfrom(Transform transform)
+    {
+        setX(transform.getX());
+        setY(transform.getY());
+        setScaleX(transform.getSx());
+        setScaleY(transform.getSy());
+        setRotation(transform.getRot());
+    }
+
+
+    public void SetTransform()
+    {
+        if(transform == null)
+        {
+            transform= new Transform();
+        }
+
+        transform.setX(getX());
+        transform.setY(getY());
+        transform.setSx(getScaleX());
+        transform.setSy(getScaleY());
+        transform.setRot(getRotation());
+
+    }
+
 
 
     private void setDecorView()
@@ -166,7 +217,6 @@ public class CustomText extends EditText {
 
     }
 
-    private long keyboardDelay = 200;
 
     private void showKeyboard()
     {
@@ -246,7 +296,7 @@ public class CustomText extends EditText {
             setDecorView();
             isEditting = false;
             inEditText = null;
-
+            text = getText().toString();
             if(customColorLayout != null)
             {
                 customColorLayout.setVisibility(INVISIBLE);
@@ -274,85 +324,11 @@ public class CustomText extends EditText {
                 dragListener.onTouch(view, motionEvent);
                 rotationGestureDetector.onTouchEvent(motionEvent) ;
                 scaleGestureDetector.onTouchEvent(motionEvent);
+
+                SetTransform();
+
+
             }
-
-
-//            if(interact)
-//            {
-//                switch(motionEvent.getAction())
-//                {
-//                    case MotionEvent.ACTION_DOWN:
-//                    {
-//
-//
-//                        move = true;
-//                        sx = getX();
-//                        sy = getY();
-//                        px = motionEvent.getRawX();
-//                        py = motionEvent.getRawY();
-//                        if(instance == null)
-//                        {
-//                            instance = (CustomText) view;
-//                        }
-//
-//                        break;
-//                    }
-//
-//                    case MotionEvent.ACTION_MOVE:
-//                    {
-//                        if(move && instance == view)
-//                        {
-//                            float x_cord = motionEvent.getRawX() ;
-//                            float y_cord = motionEvent.getRawY();
-//
-//                            float dx = x_cord - px;
-//                            float dy = y_cord - py;
-//
-//                            float vx = sx + dx;
-//                            float vy = sy + dy;
-//                            tx = vx;
-//                            ty = vy;
-//                            if(!keyboardActive)
-//                                setX(tx);
-//                            setY(ty);
-//                            instance = (CustomText) view;
-//
-//                            hideCanvasUI();
-//
-//                        }
-//
-//                        break;
-//
-//                    }
-//
-//                    case MotionEvent.ACTION_POINTER_DOWN:
-//                    {
-//                        move = true;
-//                        sx = getX();
-//                        sy = getY();
-//                        px = motionEvent.getRawX();
-//                        py = motionEvent.getRawY();
-//                        break;
-//                    }
-//
-//                    case MotionEvent.ACTION_POINTER_UP:
-//                    {
-//                        move = false;
-//                        break;
-//                    }
-//                    case MotionEvent.ACTION_UP:
-//                    {
-//
-//                        move = false;
-//                        if(instance != null && instance == view)
-//                        {
-//                            instance = null;
-//                        }
-//                        showCanvasUI();
-//                        break;
-//                    }
-//                }
-//            }
 
             return view.isClickable();
         }
