@@ -127,15 +127,17 @@ public class JSONDecoder
                         MainActivity.memoryObjects.add(0,memory);
 
 
-                        MemoryListFragment memoryListFragment = (MemoryListFragment)activity.getFragmentManager().findFragmentByTag("MEMORY_LIST_FRAGMENT");
-                        if(memoryListFragment != null)
-                        {
-                            memoryListFragment.UpdateMemoryList();
-                            Toast.makeText(context, "Refreshed!", Toast.LENGTH_SHORT).show();
-                        }
-
-
                     }
+
+
+
+                    MemoryListFragment memoryListFragment = (MemoryListFragment)activity.getFragmentManager().findFragmentByTag("MEMORY_LIST_FRAGMENT");
+                    if(memoryListFragment != null)
+                    {
+                        memoryListFragment.UpdateMemoryList();
+                        Toast.makeText(context, "Refreshed!", Toast.LENGTH_SHORT).show();
+                    }
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -155,15 +157,20 @@ public class JSONDecoder
 
     private CustomText ParseCustomText(String text)
     {
+        float aspect = (float)MainActivity.DISPLAY_WIDTH/ (float)MainActivity.DISPAY_HEIGHT;
+
+        float aspect_w = MainActivity.DISPLAY_WIDTH;
+        float aspect_h = MainActivity.DISPAY_HEIGHT;
+
         CustomText customText = null;
         String[] data = text.split(",");
 
-
+        Log.d("CALC", "Received -> " +Float.parseFloat(data[1]) * aspect_w + " " + Float.parseFloat(data[2]) * aspect_h);
         Transform transform = new Transform();
-        transform.setX(Float.parseFloat(data[1]));
-        transform.setY(Float.parseFloat(data[2]));
+        transform.setX(Float.parseFloat(data[1]) * aspect_w);
+        transform.setY(Float.parseFloat(data[2]) * aspect_h);
         transform.setSx(Float.parseFloat(data[3]));
-        transform.setSy(Float.parseFloat(data[4]));
+        transform.setSy(Float.parseFloat(data[4]) );
         transform.setRot(Float.parseFloat(data[5]));
 
         customText = new CustomText(context, null, data[0], transform, false);
@@ -171,14 +178,23 @@ public class JSONDecoder
     }
 
     private CustomBitmap ParseCustomBitmap(String text) throws UnsupportedEncodingException {
+
+
+        float aspect_w = MainActivity.DISPLAY_WIDTH;
+        float aspect_h = MainActivity.DISPAY_HEIGHT;
+
+
         CustomBitmap customBitmap = null;
         String[] data = text.split(",");
 
         Transform transform = new Transform();
-        transform.setX(Float.parseFloat(data[1]));
-        transform.setY(Float.parseFloat(data[2]));
+        Log.d("DECODE", Float.parseFloat(data[1]) + "*" + aspect_w + " = " +(Float.parseFloat(data[1]) * aspect_w));
+
+        transform.setX(Float.parseFloat(data[1]) * aspect_w);
+        transform.setY(Float.parseFloat(data[2]) * aspect_h);
         transform.setSx(Float.parseFloat(data[3]));
         transform.setSy(Float.parseFloat(data[4]));
+
         transform.setRot(Float.parseFloat(data[5]));
 
         customBitmap = new CustomBitmap(context, null, data[0] , transform, false);

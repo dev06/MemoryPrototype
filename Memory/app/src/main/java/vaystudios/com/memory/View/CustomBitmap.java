@@ -57,7 +57,7 @@ public class CustomBitmap extends ImageView
     public boolean inScale;
 
 
-
+    private int location[] = new int[2];
     public CustomBitmap(Activity context, AttributeSet attrs, Bitmap bitmap, View parentView, boolean interact) {
         super(context, attrs, 0);
         this.bitmap = bitmap;
@@ -69,17 +69,17 @@ public class CustomBitmap extends ImageView
     public CustomBitmap(Context context, AttributeSet attrs, String bytes, Transform  transform, boolean interact) {
         super(context, attrs, 0);
         this.bitmap =  StringToBitmap(bytes);
-        this.transform = transform;
-        SetTransform(transform);
         this.interact = interact;
         this.view = this;
         Init();
+        SetTransform(transform);
     }
 
 
 
     private void SetTransform(Transform transform)
     {
+
         setX(transform.getX());
         setY(transform.getY());
         setScaleX(transform.getSx());
@@ -124,11 +124,18 @@ public class CustomBitmap extends ImageView
     {
         if(transform == null)
         {
-            transform= new Transform();
+            transform = new Transform();
         }
 
-        transform.setX(getX());
-        transform.setY(getY());
+        if(location == null)
+        {
+            location = new int[2];
+        }
+
+
+
+        transform.setX(X());
+        transform.setY(Y());
         transform.setSx(getScaleX());
         transform.setSy(getScaleY());
         transform.setRot(getRotation());
@@ -170,11 +177,12 @@ public class CustomBitmap extends ImageView
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
             dragListener.onTouch(view, motionEvent);
-            
+            getLocationOnScreen(location);
             scaleGestureDetector.onTouchEvent(motionEvent);
             rotationGestureDetector.onTouchEvent(motionEvent);
             gestureDetector.onTouchEvent(motionEvent);
 
+            Log.d("TRANSFORM", X() + " " + Y() + " " + getScaleX() + " " + getScaleY());
             SetTransform();
             return view.isClickable();
         }
@@ -189,8 +197,6 @@ public class CustomBitmap extends ImageView
     public class GestureListener extends  GestureDetector.SimpleOnGestureListener
     {
 
-
-
         @Override
         public boolean onDoubleTap(MotionEvent e) {
 
@@ -199,6 +205,21 @@ public class CustomBitmap extends ImageView
             return true;
         }
     }
+
+
+    public float X()
+    {
+        return location[0];
+    }
+
+    public float Y()
+    {
+        return location[1];
+    }
+
+
+
+
 
 
 }

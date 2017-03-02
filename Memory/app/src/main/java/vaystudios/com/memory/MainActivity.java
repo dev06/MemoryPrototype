@@ -6,11 +6,13 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -31,6 +33,10 @@ public class MainActivity extends AppCompatActivity {
     public static int REQUET_IMAGE_CROP = 1;
     public static int REQUET_GALLERY_IMAGE_CROP = 2;
 
+
+    public static float DISPLAY_WIDTH;
+    public static float DISPAY_HEIGHT;
+
     public static User loggedUser;
     public static ArrayList<MemoryObject> memoryObjects = new ArrayList<MemoryObject>();
 
@@ -39,6 +45,18 @@ public class MainActivity extends AppCompatActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getRealSize(size);
+        DISPLAY_WIDTH = size.x;
+        DISPAY_HEIGHT =  size.y;
+
+//        DisplayMetrics metrics = new DisplayMetrics();
+//        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+//        DISPLAY_WIDTH = metrics.widthPixels;
+//        DISPAY_HEIGHT = metrics.heightPixels;
+        Toast.makeText(getApplicationContext(), DISPLAY_WIDTH + "x" + DISPAY_HEIGHT, Toast.LENGTH_LONG).show();
+
 
         if(checkCallingOrSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) !=
                 PackageManager.PERMISSION_GRANTED)
@@ -54,6 +72,10 @@ public class MainActivity extends AppCompatActivity {
 
         MemoryListFragment memoryListFragment = new MemoryListFragment();
         getFragmentManager().beginTransaction().add(R.id.activity_main,memoryListFragment).commit();
+
+
+
+
 
     }
 

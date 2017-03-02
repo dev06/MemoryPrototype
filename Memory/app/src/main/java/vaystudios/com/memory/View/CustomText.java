@@ -75,7 +75,7 @@ public class CustomText extends EditText {
     private Window window;
     private View decorView;
     private CustomColorLayout customColorLayout;
-
+    private int location[] = new int[2];
     public CustomText(Context context, AttributeSet attrs, View parentView, boolean interact)
     {
         super(context, attrs);
@@ -144,6 +144,8 @@ public class CustomText extends EditText {
 
     private void SetTransfrom(Transform transform)
     {
+        Log.d("TEST", "Received -> " + transform.getX() + " x " + transform.getY());
+
         setX(transform.getX());
         setY(transform.getY());
         setScaleX(transform.getSx());
@@ -155,15 +157,18 @@ public class CustomText extends EditText {
     public void SetTransform()
     {
         if(transform == null)
-        {
             transform= new Transform();
-        }
 
-        transform.setX(getX());
-        transform.setY(getY());
+        if(location == null)
+            location = new int[2];
+
+
+        transform.setX((float)X());
+        transform.setY((float)Y());
         transform.setSx(getScaleX());
         transform.setSy(getScaleY());
         transform.setRot(getRotation());
+
 
     }
 
@@ -209,7 +214,7 @@ public class CustomText extends EditText {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-       // setBackgroundColor(Color.CYAN);
+        setBackgroundColor(Color.CYAN);
          if(keyboardActive)
          {
              setX(metrics.widthPixels / 2 - getWidth() / 2);
@@ -309,6 +314,18 @@ public class CustomText extends EditText {
         }
     }
 
+    public float X()
+    {
+
+        return getX();
+    }
+
+    public float Y()
+    {
+        return getY();
+    }
+
+
 
     boolean keyboardActive;
 
@@ -321,9 +338,17 @@ public class CustomText extends EditText {
             gestureDetector.onTouchEvent(motionEvent);
             if(keyboardActive == false)
             {
+                getLocationInWindow(location);
                 dragListener.onTouch(view, motionEvent);
                 rotationGestureDetector.onTouchEvent(motionEvent) ;
                 scaleGestureDetector.onTouchEvent(motionEvent);
+             //   Log.d("TEXT", "Location -> " + X() + " x " + Y() + " | Scale -> " + getScaleX() + " x " + getScaleY() );
+            //    Log.d("TEXT_CAL", "Location -> " + X() + " / " + MainActivity.DISPLAY_WIDTH + " = " + (X() / MainActivity.DISPLAY_WIDTH) + "%");
+
+
+                Log.d("TEXT_CAL", getScaleX() + " " + getScaleY());
+
+                // Log.d("TEXT_CAL", "Location -> " + Y() + " / " + MainActivity.DISPAY_HEIGHT + " = " + (Y() + " / " + MainActivity.DISPAY_HEIGHT) + "%");
 
                 SetTransform();
 

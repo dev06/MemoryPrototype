@@ -90,6 +90,11 @@ public class JSONEncoder
 
     public void encode() throws JSONException {
 
+        float aspect = (float)MainActivity.DISPLAY_WIDTH/ (float)MainActivity.DISPAY_HEIGHT;
+
+        float aspect_w = (float)MainActivity.DISPLAY_WIDTH;
+        float aspect_h = (float)MainActivity.DISPAY_HEIGHT;
+
         JSONObject root = new JSONObject();
 
 
@@ -116,9 +121,13 @@ public class JSONEncoder
                     customText.SetTransform();
                 }
 
+                Log.d("CALC", customText.transform.getY() + " / " + aspect_h + " = " + customText.transform.getY() / aspect_h );
+                Log.d("CALC", customText.transform.getSy() + " / " + aspect_h + " = " + customText.transform.getSy() / aspect_h );
+                Log.d("TEST", "Sent -> " +  customText.transform.getX() + " x " + customText.transform.getY());
+
                 _innerText.put("customText_" + i, customText.text +
-                        "," + customText.transform.getX() + "," + customText.transform.getY() +
-                        "," + customText.transform.getSx() + "," + customText.transform.getSy() +
+                        "," + customText.transform.getX() / aspect_w  + "," + customText.transform.getY() / aspect_h  +
+                        "," + customText.transform.getSx() + "," + customText.transform.getSy()+
                         "," + customText.transform.getRot());
             }
 
@@ -134,9 +143,13 @@ public class JSONEncoder
                 {
                     customBitmap.SetTransform();
                 }
+
+                Log.d("CALC_BITMAP", customBitmap.transform.getY() + " / " + aspect_h + " = " + customBitmap.transform.getY() / aspect_h );
+                Log.d("CALC_BITMAP", customBitmap.transform.getSy() + " / " + aspect_h + " = " + customBitmap.transform.getSy() / aspect_h );
+
                 _innerBitmap.put("customBitmap_" + i , test.bitmaps.get(i).ToBitmapString() +
-                    "," + customBitmap.transform.getX() + "," + customBitmap.transform.getY() +
-                    "," + customBitmap.transform.getSx() + "," + customBitmap.transform.getSy() +
+                    "," + customBitmap.transform.getX() / aspect_w + "," + customBitmap.transform.getY() / aspect_h +
+                    "," + customBitmap.transform.getSx()+ "," + customBitmap.transform.getSy() +
                     "," + customBitmap.transform.getRot());
 
             }
