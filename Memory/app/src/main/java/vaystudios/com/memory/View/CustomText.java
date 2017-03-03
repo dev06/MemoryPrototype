@@ -105,6 +105,7 @@ public class CustomText extends EditText {
                 Init();
             }
         }, 100);
+        Toast.makeText(getContext(), getWidth() + " " + getHeight(), Toast.LENGTH_LONG).show();
     }
 
 
@@ -146,11 +147,14 @@ public class CustomText extends EditText {
     {
         Log.d("TEST", "Received -> " + transform.getX() + " x " + transform.getY());
 
+
         setX(transform.getX());
         setY(transform.getY());
         setScaleX(transform.getSx());
         setScaleY(transform.getSy());
         setRotation(transform.getRot());
+      //  setWidth((int)transform.getWidth());
+      //  setHeight((int)transform.getHeight());
     }
 
 
@@ -168,6 +172,8 @@ public class CustomText extends EditText {
         transform.setSx(getScaleX());
         transform.setSy(getScaleY());
         transform.setRot(getRotation());
+      //  transform.setWidth(getWidth());
+       // transform.setHeight(getHeight());
 
 
     }
@@ -342,13 +348,13 @@ public class CustomText extends EditText {
                 dragListener.onTouch(view, motionEvent);
                 rotationGestureDetector.onTouchEvent(motionEvent) ;
                 scaleGestureDetector.onTouchEvent(motionEvent);
-             //   Log.d("TEXT", "Location -> " + X() + " x " + Y() + " | Scale -> " + getScaleX() + " x " + getScaleY() );
-            //    Log.d("TEXT_CAL", "Location -> " + X() + " / " + MainActivity.DISPLAY_WIDTH + " = " + (X() / MainActivity.DISPLAY_WIDTH) + "%");
+                //   Log.d("TEXT", "Location -> " + X() + " x " + Y() + " | Scale -> " + getScaleX() + " x " + getScaleY() );
+                //    Log.d("TEXT_CAL", "Location -> " + X() + " / " + MainActivity.DISPLAY_WIDTH + " = " + (X() / MainActivity.DISPLAY_WIDTH) + "%");
 
 
-                Log.d("TEXT_CAL", getScaleX() + " " + getScaleY());
+                Log.d("TEXT_CAL", getWidth() + " " + getHeight());
 
-                // Log.d("TEXT_CAL", "Location -> " + Y() + " / " + MainActivity.DISPAY_HEIGHT + " = " + (Y() + " / " + MainActivity.DISPAY_HEIGHT) + "%");
+                // Log.d("TEXT_CAL", "Location -> " + Y() + " / " + MainActivity.DISPLAY_HEIGHT + " = " + (Y() + " / " + MainActivity.DISPLAY_HEIGHT) + "%");
 
                 SetTransform();
 

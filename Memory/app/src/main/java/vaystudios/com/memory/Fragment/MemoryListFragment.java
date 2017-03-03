@@ -45,7 +45,7 @@ public class MemoryListFragment extends Fragment
 
     }
 
-
+     View testView ;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.memory_list_fragment, container, false);
@@ -55,6 +55,18 @@ public class MemoryListFragment extends Fragment
         ImageView createMemory = (ImageView)view.findViewById(R.id.btn_createMemory);
         TextView welcomeText = (TextView)view.findViewById(R.id.tv_mlf_welcomeText);
         ImageView deleteAll = (ImageView)view.findViewById(R.id.btn_deleteAll);
+        final ImageView screenshot = (ImageView)view.findViewById(R.id.btn_screenshot);
+
+        screenshot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                testView = view.getRootView();
+                testView.setDrawingCacheEnabled(true);
+                screenshot.setImageBitmap(testView.getDrawingCache());
+            }
+        });
+
+
         welcomeText.setText("Welcome, " + MainActivity.loggedUser.getName());
 
 

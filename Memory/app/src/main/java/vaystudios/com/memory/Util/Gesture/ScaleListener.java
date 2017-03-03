@@ -17,7 +17,7 @@ import vaystudios.com.memory.View.CustomText;
 
 public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
 {
-    private float divisor = .4f;
+    private float divisor = .5f;
     private float scaleFactor = 1.0f;
     private Context context;
     private View view;

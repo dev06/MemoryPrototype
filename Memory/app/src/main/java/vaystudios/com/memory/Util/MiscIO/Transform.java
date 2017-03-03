@@ -11,6 +11,9 @@ public class Transform
 
     public float x, y;
     public float sx, sy;
+    public float width;
+
+    public float height;
     public float rot;
 
     public float getX() {
@@ -56,6 +59,22 @@ public class Transform
     public Transform()
     {
 
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
+    public void setHeight(float height) {
+        this.height = height;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public void setWidth(float width) {
+        this.width = width;
     }
 
 

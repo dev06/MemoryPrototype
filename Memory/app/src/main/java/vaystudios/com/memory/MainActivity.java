@@ -4,18 +4,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Point;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -24,8 +17,6 @@ import vaystudios.com.memory.Fragment.CanvasViewFragment;
 import vaystudios.com.memory.Fragment.MemoryListFragment;
 import vaystudios.com.memory.Object.MemoryObject;
 import vaystudios.com.memory.Object.User;
-import vaystudios.com.memory.Util.Coder.JSONDecoder;
-import vaystudios.com.memory.View.CustomBitmap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,10 +26,13 @@ public class MainActivity extends AppCompatActivity {
 
 
     public static float DISPLAY_WIDTH;
-    public static float DISPAY_HEIGHT;
+    public static float DISPLAY_HEIGHT;
+    public static float DISPLAY_DENSITY;
 
     public static User loggedUser;
     public static ArrayList<MemoryObject> memoryObjects = new ArrayList<MemoryObject>();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -49,13 +43,16 @@ public class MainActivity extends AppCompatActivity {
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getRealSize(size);
         DISPLAY_WIDTH = size.x;
-        DISPAY_HEIGHT =  size.y;
+        DISPLAY_HEIGHT =  size.y;
 
-//        DisplayMetrics metrics = new DisplayMetrics();
-//        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-//        DISPLAY_WIDTH = metrics.widthPixels;
-//        DISPAY_HEIGHT = metrics.heightPixels;
-        Toast.makeText(getApplicationContext(), DISPLAY_WIDTH + "x" + DISPAY_HEIGHT, Toast.LENGTH_LONG).show();
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        DISPLAY_DENSITY= (int)(metrics.density * 160f);
+
+
+
+        Toast.makeText(getApplicationContext(), DISPLAY_WIDTH + "x" + DISPLAY_HEIGHT + " | " + DISPLAY_DENSITY , Toast.LENGTH_LONG).show();
 
 
         if(checkCallingOrSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) !=
@@ -74,10 +71,8 @@ public class MainActivity extends AppCompatActivity {
         getFragmentManager().beginTransaction().add(R.id.activity_main,memoryListFragment).commit();
 
 
-
-
-
     }
+
 
 
     @Override

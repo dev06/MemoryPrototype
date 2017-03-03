@@ -2,7 +2,6 @@ package vaystudios.com.memory.Util.Coder;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -10,16 +9,12 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-import vaystudios.com.memory.Fragment.CanvasEditFragment;
 import vaystudios.com.memory.Fragment.MemoryListFragment;
 import vaystudios.com.memory.MainActivity;
 import vaystudios.com.memory.Object.MemoryObject;
@@ -157,23 +152,30 @@ public class JSONDecoder
 
     private CustomText ParseCustomText(String text)
     {
-        float aspect = (float)MainActivity.DISPLAY_WIDTH/ (float)MainActivity.DISPAY_HEIGHT;
+        float aspect = (float)MainActivity.DISPLAY_WIDTH/ (float)MainActivity.DISPLAY_HEIGHT;
 
         float aspect_w = MainActivity.DISPLAY_WIDTH;
-        float aspect_h = MainActivity.DISPAY_HEIGHT;
+        float aspect_h = MainActivity.DISPLAY_HEIGHT;
+
 
         CustomText customText = null;
         String[] data = text.split(",");
 
-        Log.d("CALC", "Received -> " +Float.parseFloat(data[1]) * aspect_w + " " + Float.parseFloat(data[2]) * aspect_h);
+
         Transform transform = new Transform();
-        transform.setX(Float.parseFloat(data[1]) * aspect_w);
-        transform.setY(Float.parseFloat(data[2]) * aspect_h);
+        transform.setX(Float.parseFloat(data[1]) * MainActivity.DISPLAY_DENSITY);
+        transform.setY(Float.parseFloat(data[2]) * MainActivity.DISPLAY_DENSITY);
+
         transform.setSx(Float.parseFloat(data[3]));
-        transform.setSy(Float.parseFloat(data[4]) );
+        transform.setSy(Float.parseFloat(data[4]));
+
+
+
+
         transform.setRot(Float.parseFloat(data[5]));
 
         customText = new CustomText(context, null, data[0], transform, false);
+
         return customText;
     }
 
@@ -181,7 +183,7 @@ public class JSONDecoder
 
 
         float aspect_w = MainActivity.DISPLAY_WIDTH;
-        float aspect_h = MainActivity.DISPAY_HEIGHT;
+        float aspect_h = MainActivity.DISPLAY_HEIGHT;
 
 
         CustomBitmap customBitmap = null;

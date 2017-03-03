@@ -52,6 +52,23 @@
         />
 
 
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/btn_screenshot"
+
+            android:background="@drawable/regular_oval"
+            android:backgroundTint="@color/colorPrimaryDark"
+            app:srcCompat = "@drawable/img_star"
+            android:layout_centerVertical="true"
+            android:padding="4dp"
+            android:layout_marginRight="140dp"
+            android:layout_alignParentRight="true"
+
+            />
+
+
+
     </RelativeLayout>
 
 

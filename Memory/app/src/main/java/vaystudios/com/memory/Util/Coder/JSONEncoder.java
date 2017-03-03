@@ -2,7 +2,6 @@ package vaystudios.com.memory.Util.Coder;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -10,18 +9,14 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 import vaystudios.com.memory.Fragment.CanvasEditFragment;
-import vaystudios.com.memory.Fragment.MemoryListFragment;
 import vaystudios.com.memory.MainActivity;
-import vaystudios.com.memory.R;
 import vaystudios.com.memory.Server.DataUploadRequest;
-import vaystudios.com.memory.Util.MiscIO.Transform;
 import vaystudios.com.memory.View.CustomBitmap;
 import vaystudios.com.memory.View.CustomText;
 
@@ -90,10 +85,10 @@ public class JSONEncoder
 
     public void encode() throws JSONException {
 
-        float aspect = (float)MainActivity.DISPLAY_WIDTH/ (float)MainActivity.DISPAY_HEIGHT;
+        float aspect = (float)MainActivity.DISPLAY_WIDTH/ (float)MainActivity.DISPLAY_HEIGHT;
 
         float aspect_w = (float)MainActivity.DISPLAY_WIDTH;
-        float aspect_h = (float)MainActivity.DISPAY_HEIGHT;
+        float aspect_h = (float)MainActivity.DISPLAY_HEIGHT;
 
         JSONObject root = new JSONObject();
 
@@ -121,13 +116,12 @@ public class JSONEncoder
                     customText.SetTransform();
                 }
 
-                Log.d("CALC", customText.transform.getY() + " / " + aspect_h + " = " + customText.transform.getY() / aspect_h );
-                Log.d("CALC", customText.transform.getSy() + " / " + aspect_h + " = " + customText.transform.getSy() / aspect_h );
-                Log.d("TEST", "Sent -> " +  customText.transform.getX() + " x " + customText.transform.getY());
 
                 _innerText.put("customText_" + i, customText.text +
-                        "," + customText.transform.getX() / aspect_w  + "," + customText.transform.getY() / aspect_h  +
-                        "," + customText.transform.getSx() + "," + customText.transform.getSy()+
+                        "," + customText.transform.getX() / MainActivity.DISPLAY_DENSITY  +
+                        "," + customText.transform.getY() / MainActivity.DISPLAY_DENSITY  +
+                        "," + customText.transform.getSx() +
+                        "," + customText.transform.getSy() +
                         "," + customText.transform.getRot());
             }
 
